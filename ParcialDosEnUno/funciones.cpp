@@ -4,9 +4,15 @@
 #include <fstream>
 #include <string>
 #include <map>
-
-
+#include <vector>
 using namespace std;
+
+struct ProductoInvetario{
+    string nombre;
+    int UnidadesPorPaquete;
+    float NumeroDePaquetes;
+    int PrecioTotal;
+};
 
 char MenuAdministrador(){
     char opcion;
@@ -38,7 +44,268 @@ char MenuUsuario(){
     cin>>opcion;
     return opcion;
 }
+char SubMenuFormarCombo(){
+    char opcion;
+    cout<<"1) Observar combos existentes. "<<endl;
+    cout<<"2) Recargar un combo. "<<endl;
+    cout<<"3) Crear un nuevo combo. "<<endl;
+    cout<<"4) Eliminar un combo. "<<endl;
+    cout<<"5) Salir. "<<endl;
+    cin>>opcion;
+}
 
+bool Administrador(){
+
+    fstream archivo("sudo.txt");
+    string clave;
+    string LeerLinea;
+    cout<<"Ingrese la clave de administrador: "<<endl;
+    cin>>clave;
+    if(archivo.fail()){
+        cout<<"No se pudo abrir el archivo: "<<endl;
+        return false;
+    }
+    else {
+        getline(archivo,LeerLinea);
+        if(LeerLinea==clave){
+            cout<<"Sesion iniciada. Bienvenido."<<endl;
+            return true;
+        }
+        else{
+             cout<<"Contrasena incorrecta. "<<endl;
+            return false;
+        }
+    }
+}
+
+
+bool verificando_cedula(string documentoING){
+    long long documento=0;
+    if((documentoING.size()>10) or (documentoING.size()<10) ){
+        cout<<"Cedula invalida..."<<endl;
+        return false;
+    }
+    else {
+        for (int i=0;i<10;i++) {
+            if(documentoING[i]<48 and documentoING[i]>57){
+                cout<<"Cedula invalida."<<endl;
+                return false;
+            }
+        }
+        int dimension=contar_lineas("usuarios.txt");
+        if(dimension != 0){
+            for (int i=0;i<10;i++) {
+                documento+=documentoING[i]-48;
+                documento*=10;
+            }
+            documento/=10;
+
+        }
+        else {
+            return true;
+        }
+
+    }
+    return true;
+}
+bool verificando_clave(string contrasena){
+    int numeros=0,letras=0;
+    if(contrasena.size()<8 or contrasena.size()>8){
+        return false;
+    } else{
+        for (int i=0;i<contrasena.size();i++) {
+            if(contrasena[i]>=48 and contrasena[i]<=57)
+                numeros++;
+            else if((contrasena[i]>=97 and contrasena[i]<=122)or(contrasena[i]>=65 and contrasena[i]<=90))
+                letras++;
+        }
+        if(numeros != 0 and letras != 0)
+            return true;
+        else
+            return false;
+    }
+}
+void AgregarUsuarios(){
+    string documento,clave,saldo;
+    char continar;
+    do{
+        cout<<"Es necesario mencionar que la cedula debe contar con 10 digitos."<<endl;
+        cout<<"Ingrese el documento del usuario: "<<endl;
+        cin>>documento;
+    }while(!verificando_cedula(documento));
+    do{
+        cout<<"La clave del usuario debe ser de exactamente 8 caracteres; ademas, debe contener numeros y letras. "<<endl;
+        cout<<"Ingrese la clave del usuario: "<<endl;
+        cin>>clave;
+    }while(!verificando_clave(clave));
+    AgregarOrdenarUsuarios(documento,clave,saldo);
+    cout<<"El usuario se ha agregado exitosamente. "<<endl;
+    cout<<"Ingrese cualquier tecla para continuar..."<<endl;
+    cin>>continar;
+}
+
+
+void GastarRecursosInventario(map<string,ProductoInvetario>& AlmacenarInventario,string NombreProductoUsado, int UnidadesUsadas){
+    auto i = AlmacenarInventario.find( NombreProductoUsado);
+    i->second.NumeroDePaquetes= (((i->second.UnidadesPorPaquete)*(i->second.NumeroDePaquetes))-UnidadesUsadas)*(i->second.NumeroDePaquetes)/((i->second.UnidadesPorPaquete)*(i->second.NumeroDePaquetes));
+}
+
+void ConstruirElCombo(map<string,ProductoInvetario>& AlmacenarInventario,string NombreCombo){
+    vector<string> ParaFormarUnCombo{"Hamburguesa","Perro Caliente","Papas a la Francesa","Vaso Plastico 44 Oz","Vaso Plastico 32 Oz","Vaso Plastico 22 Oz","Caja de palomitas 170 Oz","Caja de palomitas 130 Oz","Caja de palomitas 85 Oz","Paquetes de papas"};
+    vector<string> ParaHamburguesa{"Pan para hamburguesa","Carne para hamburguesa","Queso tajado","Tomate"};
+    vector <string> ParaPerros{"Pan para perro","Chorizo","Queso tajado","Huevos de codorniz","Ripio de papas"};
+    char IndicadorGlobal='A';
+    int CantidadComida;
+    int CostoCombo=0;
+    int elemento;
+    for(int i=0;i<ParaFormarUnCombo.size();i++){
+        cout<<i+1<<") "<<ParaFormarUnCombo[i]<<endl;
+    }
+    cout<<"Ingrese la posicion de la preparacion que va a incluir el combo: "<<endl;
+    cin>>elemento;
+    cout<<"Ingrese el numero de estas preparaciones que tendra el combo: "<<endl;
+    cin>>CantidadComida;
+    switch (elemento) {
+       case 1:{
+        for (int iterador=0;iterador<ParaHamburguesa.size();iterador++) {
+            GastarRecursosInventario(AlmacenarInventario,ParaHamburguesa[iterador],1);
+            CostoCombo+=AlmacenarInventario.find(ParaHamburguesa[iterador])->second.PrecioTotal/((AlmacenarInventario.find(ParaHamburguesa[iterador])->second.NumeroDePaquetes)*(AlmacenarInventario.find(ParaHamburguesa[iterador])->second.UnidadesPorPaquete))+1000;
+        }
+    break;
+    }
+    case 2:{
+        for (int iterador=0;iterador<ParaPerros.size()-1;iterador++) {
+            if(ParaPerros[iterador]!= "Ripio de papas")
+                GastarRecursosInventario(AlmacenarInventario,ParaPerros[iterador],1);
+           else
+                GastarRecursosInventario(AlmacenarInventario,ParaPerros[iterador],150);
+            CostoCombo+=AlmacenarInventario.find(ParaPerros[iterador])->second.PrecioTotal/((AlmacenarInventario.find(ParaPerros[iterador])->second.NumeroDePaquetes)*(AlmacenarInventario.find(ParaPerros[iterador])->second.UnidadesPorPaquete))+1000;
+        }
+        break;
+    }
+    case 3:{
+        GastarRecursosInventario(AlmacenarInventario,"Papas a la francesa",250);
+         CostoCombo+=AlmacenarInventario.find("Papas a la francesa")->second.PrecioTotal/((AlmacenarInventario.find("Papas a la francesa")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Papas a la francesa")->second.UnidadesPorPaquete))+1000;
+        break;
+    }
+    case 4:{
+        GastarRecursosInventario(AlmacenarInventario,"Vaso Plastico 44 Oz",1);
+        CostoCombo+=AlmacenarInventario.find("Vaso Plastico 44 Oz")->second.PrecioTotal/((AlmacenarInventario.find("Vaso Plastico 44 Oz")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Vaso Plastico 44 Oz")->second.UnidadesPorPaquete))+500;
+        break;
+    }
+    case 5:{
+        GastarRecursosInventario(AlmacenarInventario,"Vaso Plastico 32 Oz",1);
+        CostoCombo+=AlmacenarInventario.find("Vaso Plastico 32 Oz")->second.PrecioTotal/((AlmacenarInventario.find("Vaso Plastico 32 Oz")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Vaso Plastico 32 Oz")->second.UnidadesPorPaquete))+500;
+        break;
+    }
+    case 6:{
+        GastarRecursosInventario(AlmacenarInventario,"Vaso Plastico 22 Oz",1);
+        CostoCombo+=AlmacenarInventario.find("Vaso Plastico 22 Oz")->second.PrecioTotal/((AlmacenarInventario.find("Vaso Plastico 22 Oz")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Vaso Plastico 22 Oz")->second.UnidadesPorPaquete))+500;
+        break;
+    }
+    case 7:{
+        GastarRecursosInventario(AlmacenarInventario,"Caja de palomitas 170 Oz",1);
+        CostoCombo+=AlmacenarInventario.find("Caja de palomitas 170 Oz")->second.PrecioTotal/((AlmacenarInventario.find("Caja de palomitas 170 Oz")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Caja de palomitas 170 Oz")->second.UnidadesPorPaquete))+500;
+        GastarRecursosInventario(AlmacenarInventario,"Palomitas",150);
+        CostoCombo+=AlmacenarInventario.find("Palomitas")->second.PrecioTotal/((AlmacenarInventario.find("Palomitas")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Palomitas")->second.UnidadesPorPaquete))+200;
+        break;
+    }
+    case 8:{
+        GastarRecursosInventario(AlmacenarInventario,"Caja de palomitas 130 Oz",1);
+        CostoCombo+=AlmacenarInventario.find("Caja de palomitas 130 Oz")->second.PrecioTotal/((AlmacenarInventario.find("Caja de palomitas 130 Oz")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Caja de palomitas 130 Oz")->second.UnidadesPorPaquete))+500;
+        GastarRecursosInventario(AlmacenarInventario,"Palomitas",100);
+        CostoCombo+=AlmacenarInventario.find("Palomitas")->second.PrecioTotal/((AlmacenarInventario.find("Palomitas")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Palomitas")->second.UnidadesPorPaquete))+200;
+
+    }
+    case 9:{
+        GastarRecursosInventario(AlmacenarInventario,"Caja de palomitas 85 Oz",1);
+        CostoCombo+=AlmacenarInventario.find("Caja de palomitas 85 Oz")->second.PrecioTotal/((AlmacenarInventario.find("Caja de palomitas 85 Oz")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Caja de palomitas 85 Oz")->second.UnidadesPorPaquete))+500;
+        GastarRecursosInventario(AlmacenarInventario,"Palomitas",75);
+        CostoCombo+=AlmacenarInventario.find("Palomitas")->second.PrecioTotal/((AlmacenarInventario.find("Palomitas")->second.NumeroDePaquetes)*(AlmacenarInventario.find("Palomitas")->second.UnidadesPorPaquete))+200;
+        break;
+    }
+    case 10:
+        GastarRecursosInventario(AlmacenarInventario,"Paquete de papas",1);
+     break;
+    case 11:
+     break;
+    default:
+        cout<<"Opcion ingresada deconocida. "<<endl;
+        break;
+    }
+}
+void FormarCombos(map<string,ProductoInvetario>& AlmacenarInventario, map<string,ComboCinema>& TodosLosCombos){
+    char opcion;
+    do{
+        opcion=SubMenuFormarCombo();
+        switch (opcion) {
+        case '1':{
+            MostrarCombos(TodosLosCombos);
+        }
+            break;
+        case '2':{
+            string NombreComboRecargar;
+            cout<<"Ingrese el nombre del combo que desea recargar: "<<endl;
+            getline(cin,NombreComboRecargar);
+        }
+            break;
+        case '3':
+            cout<<"Hola"<<endl;
+            break;
+        case '4':
+            cout<<"Hola<"<<endl;
+            break;
+        case '5':
+            cout<<"Los cambios han sido guardados correctamente. "<<endl;
+            break;
+        }
+    }while(opcion != '5');
+}
+void LeerInventario( map<string,ProductoInvetario>& AlmacenarInventario){
+string LeerLinea,nombre,UnidadesPorPaquete,NumeroDePaquetes,PrecioTotal;
+    fstream archivo("inventario.txt");
+    if(archivo.fail())
+        cout<<"Error al abrir el archivo, formar combos..."<<endl;
+    else {
+        while (!archivo.eof()) {
+            getline(archivo,LeerLinea);
+            if(LeerLinea!=""){
+                ProductoInvetario auxiliar;
+                auxiliar.nombre=LeerLinea.substr(0,LeerLinea.find("+"));
+                LeerLinea=LeerLinea.substr(LeerLinea.find("+")+1,LeerLinea.size()-LeerLinea.find("+"));
+                UnidadesPorPaquete=LeerLinea.substr(0,LeerLinea.find("+"));
+                auxiliar.UnidadesPorPaquete=StringAnumero(UnidadesPorPaquete);
+                LeerLinea=LeerLinea.substr(LeerLinea.find("+")+1,LeerLinea.size()-LeerLinea.find("+"));
+               NumeroDePaquetes=LeerLinea.substr(0,LeerLinea.find("+"));
+               auxiliar.NumeroDePaquetes=StringAFloat(NumeroDePaquetes);
+               LeerLinea=LeerLinea.substr(LeerLinea.find("+")+1,LeerLinea.size()-LeerLinea.find("+"));
+               PrecioTotal=LeerLinea.substr(0,LeerLinea.find("+"));
+               auxiliar.PrecioTotal=StringAnumero(PrecioTotal);
+               AlmacenarInventario.insert(pair<string,ProductoInvetario>(nombre,auxiliar));
+            }
+        }
+    }
+    archivo.close();
+}
+
+float StringAFloat(string numero){
+    float retornar=0;
+    for (int i=numero.size()-1;i>=0;--i) {
+        if(numero[i]=='.'){
+            while (retornar>1) {
+                retornar/=10;
+            }
+        }
+        else {
+            if(retornar>=1)
+                retornar+=10*(numero[i]-48);
+            else
+               retornar+=numero[i]-48;
+        }
+    }
+
+    return retornar;
+}
 void LeerCombos( map<string,ComboCinema>&CombosPorLeer){ // Los combos tienen que estar almacenados en un archivo, esta funcion lee ese archivo y los almacena en un map.
     fstream archivo("combos.txt");
     string LeerLinea,nombre,contenido,precio,cuantoshay;
@@ -65,6 +332,17 @@ void LeerCombos( map<string,ComboCinema>&CombosPorLeer){ // Los combos tienen qu
     archivo.close();
 }
 
+void MostrarCombos( map<string,ComboCinema>& CombosEnEsteMomento){ //Imprime en pantalla los combos que hay dispobiles.
+    cout<<"Los combos disponibles en el momento son: "<<endl<<endl;
+    for(auto i:CombosEnEsteMomento){
+        cout<<"Nombre: "<<i.first<<endl;
+        cout<<"Contenido: "<<i.second.Componentes<<endl;
+        cout<<"Precio: "<<i.second.precio<<endl;
+        cout<<"Disponibilidad: "<<i.second.CuantosDeEsteHay<<endl;
+        cout<<endl<<endl;
+    }
+
+}
 int StringAnumero(string numero){ // Esta funcion convierte un string a numero
     int resultado=0;
     for (int i =0;i<numero.size();i++) {
@@ -75,34 +353,14 @@ int StringAnumero(string numero){ // Esta funcion convierte un string a numero
     return resultado;
 }
 
-void ObservarInventario(){ //Esta funcion imprime en pantalla el inventario.
-    int indicador=contar_lineas("inventario.txt");
-    if(indicador!=0){
-        fstream archivo("inventario.txt");
-        string LeerLinea;
-        if(archivo.fail())
-            cout<<"No se pudo abrir el archivo. "<<endl;
-        else {
-            while (!archivo.eof()) {
-                getline(archivo,LeerLinea);
-                if(LeerLinea!=""){
-                    for (int i=0 ;i<LeerLinea.size();i++) {
-                        if(LeerLinea[i]!='+')
-                            cout<<LeerLinea[i];
-                        else
-                            cout<<"  ";
-                    }
-                    cout<<endl;
-                }
-            }
-        }
-
-        archivo.close();
+void ObservarInventario(map<string,ProductoInvetario>& AlmacenarInventario){ //Esta funcion imprime en pantalla el inventario.
+    for(auto i:AlmacenarInventario){
+        cout<<"Nombre: "<<i.first<<endl;
+        cout<<"Unidades por paquete: "<<i.second.UnidadesPorPaquete<<endl;
+        cout<<"Numero de paquetes "<<i.second.NumeroDePaquetes<<endl;;
+        cout<<"Costo Total "<<i.second.PrecioTotal<<endl;
+        cout<<endl<<endl;
     }
-    else {
-        cout<<"Aun no hay ningun articulo en el inventario. "<<endl;
-    }
-
 }
 
 void AgregarArticulosInventario(){   // Esta funcion permite agregar nuevos productos al inventario.
