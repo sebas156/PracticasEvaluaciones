@@ -7,22 +7,16 @@
 #include <vector>
 using namespace std;
 
-struct ProductoInvetario{
-    string nombre;
-    int UnidadesPorPaquete;
-    float NumeroDePaquetes;
-    int PrecioTotal;
-};
-
 char MenuAdministrador(){
     char opcion;
     cout<<"A) Ver inventario. "<<endl;
     cout<<"B) Agregar productos al inventario. "<<endl;
-    cout<<"C) Formar combos. "<<endl;
+    cout<<"C) Combos. "<<endl;
     cout<<"D) Agregar Usuarios. "<<endl;
-    cout<<"E) Generar reporte de las ventas hasta el momento. "<<endl;
-    cout<<"F) Mostrar ganancias y perdidas."<<endl;
-    cout<<"G) Cerrar Sesion. "<<endl;
+    cout<<"E) Eliminar Usuarios. "<<endl;
+    cout<<"F) Generar reporte de las ventas hasta el momento. "<<endl;
+    cout<<"G) Mostrar ganancias y perdidas."<<endl;
+    cout<<"H) Cerrar Sesion. "<<endl;
     cin>>opcion;
     return opcion;
 }
@@ -78,36 +72,72 @@ bool Administrador(){
     }
 }
 
+void LeerUsuariosDelArchivo( map<string,Usuario>& UsuariosRegistrados){
+    fstream archivo("usuarios.txt");
+    string LeerLinea,nombre,clave,puntos;
+    if(archivo.fail()){
+        cout<<"Error al abrir el archivo."<<endl;
+    }
+    else {
+        while (!archivo.eof()) {
+            getline(archivo,LeerLinea);
+            if(LeerLinea!=""){
+                nombre=LeerLinea.substr(0,LeerLinea.find("+"));
+                LeerLinea=LeerLinea.substr(LeerLinea.find("+")+1, LeerLinea.size()- LeerLinea.find("+"));
+                clave=LeerLinea.substr(0,LeerLinea.find("+"));
+                LeerLinea=LeerLinea.substr(LeerLinea.find("+")+1, LeerLinea.size()- LeerLinea.find("+"));
+                puntos=LeerLinea.substr(0,LeerLinea.find("+"));
+                Usuario auxiliar;
+                auxiliar.inicializandoTodo(nombre,clave,puntos);
+                UsuariosRegistrados.insert(pair<string,Usuario>(nombre,auxiliar));
+            }
+        }
+    }
+    archivo.close();
+}
 
-bool verificando_cedula(string documentoING){
-    long long documento=0;
-    if((documentoING.size()>10) or (documentoING.size()<10) ){
-        cout<<"Cedula invalida..."<<endl;
+void EscribirUsuariosEnElArchivo(map<string,Usuario>& UsuariosRegistrados){
+    ofstream archivo("usuarios.txt");
+    string linea="";
+    if(archivo.fail()){
+        cout<<"Error al abrir el archivo. "<<endl;
+    }
+    else {
+        for (auto i = UsuariosRegistrados.begin();i!=UsuariosRegistrados.end();i++) {
+            linea=i->second.documento+ "+" + i->second.clave+ "+" + NumeroCadenaCaracterer(i->second.puntos)+ "+";
+            archivo<<linea<<endl;
+        }
+    }
+    archivo.close();
+}
+
+void EliminarUsuario(map<string,Usuario>& UsuariosRegistrados){
+    string UsuarioEliminar;
+    cout<<"Ingrese el nombre del usuario que desea eliminar: "<<endl;
+    getline(cin,UsuarioEliminar);
+    getline(cin,UsuarioEliminar);
+    auto i = UsuariosRegistrados.find(UsuarioEliminar);
+    if(i!=UsuariosRegistrados.end()){
+        UsuariosRegistrados.erase(UsuarioEliminar);
+        cout<<"Usuario eliminado exitosamente. "<<endl;
+    }
+    else {
+        cout<<"No se puede eliminar un usuario que no esta registrado. "<<endl;
+    }
+}
+
+bool verificando_cedula(string documentoING,map<string,Usuario> &UsuariosRegistrados){
+    auto i=UsuariosRegistrados.find(documentoING);
+    if(i!=UsuariosRegistrados.end()){
+        cout<<"El nombre de usuario ya se encuentra en uso. "<<endl;
         return false;
     }
     else {
-        for (int i=0;i<10;i++) {
-            if(documentoING[i]<48 and documentoING[i]>57){
-                cout<<"Cedula invalida."<<endl;
-                return false;
-            }
-        }
-        int dimension=contar_lineas("usuarios.txt");
-        if(dimension != 0){
-            for (int i=0;i<10;i++) {
-                documento+=documentoING[i]-48;
-                documento*=10;
-            }
-            documento/=10;
-
-        }
-        else {
-            return true;
-        }
-
+        return true;
     }
-    return true;
 }
+
+
 bool verificando_clave(string contrasena){
     int numeros=0,letras=0;
     if(contrasena.size()<8 or contrasena.size()>8){
@@ -125,23 +155,29 @@ bool verificando_clave(string contrasena){
             return false;
     }
 }
-void AgregarUsuarios(){
-    string documento,clave,saldo;
-    char continar;
+
+void IncorporarUsuarioAlSistema( map<string,Usuario> &UsuariosRegistrados,string nombre, string contrasena,string puntos){
+    Usuario auxilar;
+    auxilar.inicializandoTodo(nombre,contrasena,puntos);
+    UsuariosRegistrados.insert(pair<string,Usuario>(nombre,auxilar));
+}
+
+void AgregarUsuarios( map<string,Usuario> &UsuariosRegistrados){
+    string documento,clave;
+    getline(cin,documento);
     do{
-        cout<<"Es necesario mencionar que la cedula debe contar con 10 digitos."<<endl;
-        cout<<"Ingrese el documento del usuario: "<<endl;
-        cin>>documento;
-    }while(!verificando_cedula(documento));
+        cout<<"Ingrese el nombre con el cual el usuario desea quedar registrado: "<<endl;
+        getline(cin,documento);
+    }while(!verificando_cedula(documento,UsuariosRegistrados));
+
     do{
         cout<<"La clave del usuario debe ser de exactamente 8 caracteres; ademas, debe contener numeros y letras. "<<endl;
         cout<<"Ingrese la clave del usuario: "<<endl;
         cin>>clave;
     }while(!verificando_clave(clave));
-    AgregarOrdenarUsuarios(documento,clave,saldo);
+
+    IncorporarUsuarioAlSistema(UsuariosRegistrados,documento,clave,"0");
     cout<<"El usuario se ha agregado exitosamente. "<<endl;
-    cout<<"Ingrese cualquier tecla para continuar..."<<endl;
-    cin>>continar;
 }
 
 
@@ -261,6 +297,8 @@ void FormarCombos(map<string,ProductoInvetario>& AlmacenarInventario, map<string
         }
     }while(opcion != '5');
 }
+
+
 void LeerInventario( map<string,ProductoInvetario>& AlmacenarInventario){
 string LeerLinea,nombre,UnidadesPorPaquete,NumeroDePaquetes,PrecioTotal;
     fstream archivo("inventario.txt");
@@ -306,6 +344,7 @@ float StringAFloat(string numero){
 
     return retornar;
 }
+
 void LeerCombos( map<string,ComboCinema>&CombosPorLeer){ // Los combos tienen que estar almacenados en un archivo, esta funcion lee ese archivo y los almacena en un map.
     fstream archivo("combos.txt");
     string LeerLinea,nombre,contenido,precio,cuantoshay;
@@ -333,13 +372,18 @@ void LeerCombos( map<string,ComboCinema>&CombosPorLeer){ // Los combos tienen qu
 }
 
 void MostrarCombos( map<string,ComboCinema>& CombosEnEsteMomento){ //Imprime en pantalla los combos que hay dispobiles.
-    cout<<"Los combos disponibles en el momento son: "<<endl<<endl;
-    for(auto i:CombosEnEsteMomento){
-        cout<<"Nombre: "<<i.first<<endl;
-        cout<<"Contenido: "<<i.second.Componentes<<endl;
-        cout<<"Precio: "<<i.second.precio<<endl;
-        cout<<"Disponibilidad: "<<i.second.CuantosDeEsteHay<<endl;
-        cout<<endl<<endl;
+    if(!CombosEnEsteMomento.empty()){
+        cout<<"Los combos disponibles en el momento son: "<<endl<<endl;
+        for(auto i:CombosEnEsteMomento){
+            cout<<"Nombre: "<<i.first<<endl;
+            cout<<"Contenido: "<<i.second.Componentes<<endl;
+            cout<<"Precio: "<<i.second.precio<<endl;
+            cout<<"Disponibilidad: "<<i.second.CuantosDeEsteHay<<endl;
+            cout<<endl<<endl;
+        }
+    }
+    else {
+        cout<<"En el momento no hay combos disponibles. "<<endl;
     }
 
 }
@@ -354,12 +398,17 @@ int StringAnumero(string numero){ // Esta funcion convierte un string a numero
 }
 
 void ObservarInventario(map<string,ProductoInvetario>& AlmacenarInventario){ //Esta funcion imprime en pantalla el inventario.
-    for(auto i:AlmacenarInventario){
-        cout<<"Nombre: "<<i.first<<endl;
-        cout<<"Unidades por paquete: "<<i.second.UnidadesPorPaquete<<endl;
-        cout<<"Numero de paquetes "<<i.second.NumeroDePaquetes<<endl;;
-        cout<<"Costo Total "<<i.second.PrecioTotal<<endl;
-        cout<<endl<<endl;
+    if(!AlmacenarInventario.empty()){
+        for(auto i:AlmacenarInventario){
+            cout<<"Nombre: "<<i.first<<endl;
+            cout<<"Unidades por paquete: "<<i.second.UnidadesPorPaquete<<endl;
+            cout<<"Numero de paquetes "<<i.second.NumeroDePaquetes<<endl;;
+            cout<<"Costo Total "<<i.second.PrecioTotal<<endl;
+            cout<<endl<<endl;
+        }
+    }
+    else {
+        cout<<"Por el momento el inventario se encuentra vacio. "<<endl;
     }
 }
 
@@ -431,6 +480,10 @@ string NumeroDocumetnoCadenaCaracteres(long long NumDocumento){ // Los usuarios 
 string NumeroCadenaCaracterer(int canDinero){// Transforma un entero en una cadena de caracteres.
     string RetornarConvertido="";
     char letra;
+    if(canDinero==0){
+        letra=(canDinero%10+48);
+        RetornarConvertido= letra + RetornarConvertido;
+    }
     while (canDinero>0) {
         letra=(canDinero%10+48);
         RetornarConvertido= letra + RetornarConvertido;

@@ -4,10 +4,17 @@
 #include <string>
 using namespace std;
 
+struct ProductoInvetario{
+    string nombre;
+    int UnidadesPorPaquete;
+    float NumeroDePaquetes;
+    int PrecioTotal;
+};
+
 class Usuario
 {
 public:
-    long long documento;
+    string documento;
     string clave;
     int puntos;
     void inicializandoTodo(string,string,string);

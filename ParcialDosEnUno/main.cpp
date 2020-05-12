@@ -4,22 +4,57 @@
 #include <map>
 #include <vector>
 using namespace std;
-struct ProductoInvetario{
-    string nombre;
-    int UnidadesPorPaquete;
-    float NumeroDePaquetes;
-    int PrecioTotal;
-};
 
 int main()
 {
     map<string,ComboCinema> TodosLosCombos;
     map<string,ProductoInvetario> AlmacenarInventario;
-    float prueba;
-    string numero = "12.13";
-    prueba=StringAFloat(numero);
-    vector<string> sujeto{"D","C","B","A"};
-    cout<<"Holaminfo"<<endl;
-    cout<<1<<endl;
+    map<string,Usuario> UsuariosRegistrados;
+    char OpcionesGneral,OpcionAdmin;
+    LeerUsuariosDelArchivo(UsuariosRegistrados);
+    LeerInventario(AlmacenarInventario);
+    LeerCombos(TodosLosCombos);
+    do{
+        OpcionesGneral=MenuGeneal();
+        switch (OpcionesGneral) {
+        case 'A':{
+            if(Administrador()){
+                do{
+                    OpcionAdmin=MenuAdministrador();
+                    switch (OpcionAdmin) {
+                    case 'A':{
+                        ObservarInventario(AlmacenarInventario);
+                        break;
+                    }
+                    case 'D':{
+                        AgregarUsuarios(UsuariosRegistrados);
+                        break;
+                    }
+                    case 'E':{
+                        EliminarUsuario(UsuariosRegistrados);
+                        break;
+                    }
+
+                    }
+                }while(OpcionAdmin != 'H');
+            }
+            break;
+        }
+        case 'B':{
+            AgregarUsuarios(UsuariosRegistrados);
+            break;
+        }
+        case 'C':{
+            EscribirUsuariosEnElArchivo(UsuariosRegistrados);
+            cout<<"Todos los combios han sido guardados exitosamente. "<<endl;
+            break;
+        }
+        default:{
+            cout<<"La opcion ingresada no s reconoce. "<<endl;
+            break;
+        }
+
+        }
+    }while(OpcionesGneral != 'C');
     return 0;
 }

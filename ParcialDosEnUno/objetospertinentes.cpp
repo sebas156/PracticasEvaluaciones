@@ -2,13 +2,7 @@
 
 void Usuario::inicializandoTodo(string DocumentIngresado,string contrasena,string PuntosParaAcumular ){
     puntos=0;
-    documento=0;
-    for (int i=0;i<10;i++) {
-        documento+=DocumentIngresado[i]-48;
-        documento*=10;
-    }
-    documento/=10;
-
+    documento=DocumentIngresado;
     for (int i =0;i<PuntosParaAcumular.size();i++) {
         puntos+=PuntosParaAcumular[i]-48;
         puntos*=10;
@@ -17,7 +11,6 @@ void Usuario::inicializandoTodo(string DocumentIngresado,string contrasena,strin
 
     clave=contrasena;
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
