@@ -27,4 +27,7 @@ void IncorporarUsuarioAlSistema( map<string,Usuario> &UsuariosRegistrados,string
 void LeerInventario( map<string,ProductoInvetario>&);
 void ObservarInventario(map<string,ProductoInvetario>&);
 void LeerCombos( map<string,ComboCinema>&);
+void LeerArticulosParaAgregarInventario(map<string,ProductoInvetario>&);
+void EscribirRegistroDeComprasParaInventario(string );
+bool SiExisteLaComidaSuficienteEnElInventario(map<string,ProductoInvetario>&, string,int);
 #endif // FUNCIONES_H

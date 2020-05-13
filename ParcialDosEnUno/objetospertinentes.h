@@ -8,7 +8,7 @@ struct ProductoInvetario{
     string nombre;
     int UnidadesPorPaquete;
     float NumeroDePaquetes;
-    int PrecioTotal;
+    int precio;
 };
 
 class Usuario
