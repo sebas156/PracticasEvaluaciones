@@ -7,6 +7,7 @@ using namespace std;
 
 int main()
 {
+    int inversion=0;
     map<string,ComboCinema> TodosLosCombos;
     map<string,ProductoInvetario> AlmacenarInventario;
     map<string,Usuario> UsuariosRegistrados;
@@ -26,6 +27,14 @@ int main()
                         ObservarInventario(AlmacenarInventario);
                         break;
                     }
+                    case 'B':{
+                        AgregarAInventario(AlmacenarInventario,inversion);
+                        break;
+                    }
+                    case 'C':{
+                        FormarCombos(AlmacenarInventario,TodosLosCombos);
+                        break;
+                    }
                     case 'D':{
                         AgregarUsuarios(UsuariosRegistrados);
                         break;
@@ -34,9 +43,19 @@ int main()
                         EliminarUsuario(UsuariosRegistrados);
                         break;
                     }
-
+                    case 'F':{
+                        break;
                     }
-                }while(OpcionAdmin != 'H');
+                    case 'G':{
+                        break;
+                    }
+                    case 'I':{
+                        EscribirArchivoInventario(AlmacenarInventario);
+                        cout<<"Todos los cambios se han guardado correctamente."<<endl;
+                        break;
+                    }
+                    }
+                }while(OpcionAdmin != 'I');
             }
             break;
         }

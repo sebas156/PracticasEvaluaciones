@@ -16,9 +16,9 @@
 16+Caja para palomitas 170 Oz+30+12000
 17+Caja para palomitas 130 Oz+30+9000
 18+Caja para palomitas 85 Oz+30+8000
-19+Gaseosa Pepsi+34+5500
-20+Cocacola+34+6000
-21+Gaseosa Postobon Manzana+34+5200
-22+Gaseosa Postobon Uva+34+5200
-23+Dry Ginger+34+5200
+19+Gaseosa Pepsi+102+5500
+20+Cocacola+102+6000
+21+Gaseosa Postobon Manzana+102+5200
+22+Gaseosa Postobon Uva+102+5200
+23+Dry Ginger+102+5200
 24+Paca de botellas de agua+6+10000

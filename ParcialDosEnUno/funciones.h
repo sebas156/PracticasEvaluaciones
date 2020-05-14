@@ -30,4 +30,13 @@ void LeerCombos( map<string,ComboCinema>&);
 void LeerArticulosParaAgregarInventario(map<string,ProductoInvetario>&);
 void EscribirRegistroDeComprasParaInventario(string );
 bool SiExisteLaComidaSuficienteEnElInventario(map<string,ProductoInvetario>&, string,int);
+void GastarRecursosInventario(map<string,ProductoInvetario>&,string , int);
+void CrearNuevoCombo(map<string,ProductoInvetario>&,string,map<string,ComboCinema> &);
+bool QueSeNecesitaParaCadaPreparacion(map<string,ProductoInvetario>&,map<string,int>,int);
+void EjecutarGastoAutomatico(map<string,ProductoInvetario>&,map<string,int>,int);
+map<string,int> DesglozarElementosDelContenidoDeUnCombo(string &);
+void FormarCombos(map<string,ProductoInvetario>&, map<string,ComboCinema>& );
+void AgregarAInventario(map<string,ProductoInvetario>&,int &);
+void EscribirArchivoInventario(map<string,ProductoInvetario>&);
+void EscribirEnArchiParaCombos(map<string,ComboCinema>&);
 #endif // FUNCIONES_H
