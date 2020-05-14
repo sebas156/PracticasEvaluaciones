@@ -44,4 +44,9 @@ void NotificarPeticionDeRegistro(string nombre, string);
 void ExtraerSolicitudesDeRegistro(map<string,string> &);
 void ObservarPeticiones(map<string,string> &);
 void RealizarPeticion( map<string,Usuario> &);
+void SeleccionarSaborGaseosa(map<string,ProductoInvetario>, int, string);
+void precios_individuales( int &,int);
+void EscribirLineaRegistroVentas(string);
+void cambio_diniero(int *);
+void PagarCuenta(int);
 #endif // FUNCIONES_H

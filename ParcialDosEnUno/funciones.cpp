@@ -38,8 +38,8 @@ char MenuGeneal(){
 
 char MenuUsuario(){
     char opcion;
-    cout<<"A) Ver combos disponibles. "<<endl;
-    cout<<"B) Comprar combo. "<<endl;
+    cout<<"A) Ver productos disponibles. "<<endl;
+    cout<<"B) Comprar producto. "<<endl;
     cout<<"C) Cerrar sesion. "<<endl;
     cin>>opcion;
     return opcion;
@@ -53,6 +53,290 @@ char SubMenuFormarCombo(){
     cout<<"5) Salir. "<<endl;
     cin>>opcion;
     return opcion;
+}
+
+void ObservarProductos(map<string,ComboCinema> &TodosLosCombos){
+    vector<string> ParaFormarUnCombo{"Hamburguesa","Perro Caliente","Nachos","Doritos","Detodito","Caja grande de palomitas.","Caja mediana de palomitas.","Caja pequena de palomitas","Vaso grande de gaseosa.","Vaso mediano de gaseosa.","Vaso pequeno de gaseosa."};
+    cout<<"Combos: "<<endl;
+    if(TodosLosCombos.empty())
+        cout<<"No hay combos disponibles."<<endl;
+    else {
+        MostrarCombos(TodosLosCombos);
+    }
+    cout<<endl;
+    cout<<"Articulos independientes: "<<endl;
+    for (int i=0;i<ParaFormarUnCombo.size();i++) {
+        cout<<i+1<<") "<<ParaFormarUnCombo[i]<<endl;
+    }
+}
+
+void RealizarCompra(map<string,Usuario> UsuariosRegistrados,map<string,ComboCinema> &TodosLosCombos,map<string,ProductoInvetario> & AlmacenarInventario,string usuarioOriginal){
+    string usuario=usuarioOriginal;
+    char ComboOIndependiente;
+    int cantidad;
+    char CanastaDeCompras;
+    int DineroAPagar=0;
+    string NombrePedido;
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    ostringstream oss;
+    oss << put_time(&tm, "%d-%m-%Y %H-%M-%S");
+    auto str = oss.str();
+    str= "Fecha: "+ str.substr(0,str.find(" "))+" Hora: "+ str.substr(str.find(" ")+1,str.size()-str.find(" "));
+    EscribirLineaRegistroVentas(str);
+    cout<<"Por facor sea cuidadoso al ingresar los siguientes datos. "<<endl;
+    cout<<"Ingrese la fila y el asiento a la que se debe llevar el pedido: "<<endl;
+    cout<<"Fila: "<<endl;
+    cin>>NombrePedido;
+    usuario+=" Fila: "+NombrePedido;
+    cout<<"Asiento: "<<endl;
+    cin>>NombrePedido;
+    usuario+=" Asiento: "+NombrePedido;
+    EscribirLineaRegistroVentas("Usuario: "+usuario);
+    do{
+        do{
+            cout<<"Que producto desea comprar? "<<endl;
+            cout<<"Combo -> 1.\nIndependiente->2"<<endl;
+            cin>>ComboOIndependiente;
+            if(ComboOIndependiente!= '1' and ComboOIndependiente != '2')
+                cout<<"Opcion desconocida. "<<endl;
+        }while(ComboOIndependiente!= '1' and ComboOIndependiente != '2');
+
+        if(ComboOIndependiente=='1'){
+            cout<<"Ingrese el nombre del combo: "<<endl;
+            getline(cin,NombrePedido);
+            getline(cin,NombrePedido);
+            cout<<"Ingrese cuantos de este combo desea: "<<endl;
+            cin>>cantidad;
+            if(TodosLosCombos.find(NombrePedido)==TodosLosCombos.end())
+                cout<<"El combo ingresado NO se encuentra en nuestro repertorio.\nIntentelo nuevamente."<<endl;
+            else {
+                if(TodosLosCombos[NombrePedido].CuantosDeEsteHay>=cantidad){
+                    for (int i=1;i<=cantidad;i++) {
+                        SeleccionarSaborGaseosa(AlmacenarInventario,DineroAPagar,TodosLosCombos[NombrePedido].Componentes);
+                    }
+                    TodosLosCombos[NombrePedido].CuantosDeEsteHay-=cantidad;
+                    EscribirLineaRegistroVentas(NombrePedido+" "+NumeroCadenaCaracterer(cantidad));
+                    DineroAPagar+=TodosLosCombos[NombrePedido].precio*cantidad;
+                    UsuariosRegistrados[usuarioOriginal].puntos+=TodosLosCombos[NombrePedido].precio*0.05;
+                }
+                else {
+                    cout<<"No hay la cantidad de combos suficientes para satisfacer el pedido."<<endl;
+                }
+            }
+        }
+        else {
+            vector<string> ParaFormarUnCombo{"Hamburguesa","Perro Caliente","Nachos","Doritos","Detodito","Caja grande de palomitas.","Caja mediana de palomitas.","Caja pequena de palomitas","Vaso grande de gaseosa.","Vaso mediano de gaseosa.","Vaso pequeno de gaseosa."};
+            map <string,int> ProductoCantidad;
+            bool bandera;
+            string opcion;
+            do{
+                cout<<"Ingrese el producto que desea comprar: "<<endl;
+                cin>>opcion;
+                if(opcion != "1" and opcion != "2" and opcion != "3" and opcion != "4" and opcion != "5" and opcion != "6" and opcion != "7" and opcion != "8" and opcion != "9" and opcion != "10" and opcion != "11" )
+                    cout<<"Opcion ingresada invalida. "<<endl;
+            }while(opcion != "1" and opcion != "2" and opcion != "3" and opcion != "4" and opcion != "5" and opcion != "6" and opcion != "7" and opcion != "8" and opcion != "9" and opcion != "10" and opcion != "11" );
+            int opcionNumero=StringAnumero(opcion);
+            int numero;
+            cout<<"Cuantas unidades desea agregar? "<<endl;
+            cin>>numero;
+            string AnalizarContenidoCombo=NumeroCadenaCaracterer(numero)+ParaFormarUnCombo[opcionNumero-1];
+            while(AnalizarContenidoCombo != ""){
+                ProductoCantidad=DesglozarElementosDelContenidoDeUnCombo(AnalizarContenidoCombo);
+                bandera=QueSeNecesitaParaCadaPreparacion(AlmacenarInventario,ProductoCantidad,numero);
+                if(bandera == false){
+                    cout<<"Senor usuario lamentamos las molestias, pero en el momento no hay inventario suficiente para satisfacer este pedido. Pruebe con otro articulo."<<endl;
+                    break;
+                }
+            }
+            if(bandera==true){
+                AnalizarContenidoCombo=NumeroCadenaCaracterer(numero)+ParaFormarUnCombo[opcionNumero-1];
+                while (AnalizarContenidoCombo!= "") {
+                    ProductoCantidad=DesglozarElementosDelContenidoDeUnCombo(AnalizarContenidoCombo);
+                    EjecutarGastoAutomatico(AlmacenarInventario,ProductoCantidad,numero);
+                }
+                precios_individuales(DineroAPagar,opcionNumero);
+                EscribirLineaRegistroVentas(ParaFormarUnCombo[opcionNumero]+" "+NumeroCadenaCaracterer(numero));
+            }
+        }
+        cout<<"Desea agregar otro articulo al carrito? "<<endl;
+        cout<<"Si -> 1\nNo -> Cualquier otra tecla. "<<endl;
+        cin>>CanastaDeCompras;
+    }while(CanastaDeCompras == '1');
+    if(UsuariosRegistrados[usuarioOriginal].puntos>=5000){
+        DineroAPagar=DineroAPagar*0.6;
+        UsuariosRegistrados[usuarioOriginal].puntos-=5000;
+    }
+    EscribirLineaRegistroVentas("Precio Total: "+NumeroCadenaCaracterer(DineroAPagar));
+    EscribirLineaRegistroVentas("        ");
+}
+
+void PagarCuenta(int PrecioTotal){
+    int dineroIngresado;
+    bool bandera;
+    do{
+        cout<<"Su compra tiene un precio de "<<PrecioTotal<<" pesos."<<endl;
+        cout<<"Ingrese la cantidad con la que va a pagar: "<<endl;
+        cin>>dineroIngresado;
+        if(dineroIngresado<PrecioTotal){
+            cout<<"La cantidad de dinero ingresada es insuficiente. "<<endl;
+            bandera=false;
+        }
+        else {
+            dineroIngresado-=PrecioTotal;
+            cout<<"Su cambio es: "<<endl;
+            cambio_diniero(&dineroIngresado);
+            cout<<"Con un resto de "<<dineroIngresado<<endl;
+            bandera=true;
+        }
+    }while(bandera==false);
+}
+
+void cambio_diniero(int *dinero){
+    cout<<"Billetes de 50 000: "<<*dinero/50000<<endl;
+    *dinero=*dinero%50000;
+    cout<<"Billetes de 20 000: "<<*dinero/20000<<endl;
+    *dinero=*dinero%20000;
+    cout<<"Billetes de 10 000: "<<*dinero/10000<<endl;
+    *dinero=*dinero%10000;
+    cout<<"Billetes de 5000: "<<*dinero/5000<<endl;
+    *dinero=*dinero%5000;
+    cout<<"Billetes de 2000: "<<*dinero/2000<<endl;
+    *dinero=*dinero%2000;
+    cout<<"Billetes de 1000: "<<*dinero/1000<<endl;
+    *dinero=*dinero%1000;
+    cout<<"Monedas de 500: "<<*dinero/500<<endl;
+    *dinero=*dinero%500;
+    cout<<"Monedas de 200: "<<*dinero/500<<endl;
+    *dinero=*dinero%200;
+    cout<<"Monedas de 100: "<<*dinero/500<<endl;
+    *dinero=*dinero%100;
+    cout<<"Monedas de 50: "<<*dinero/500<<endl;
+    *dinero=*dinero%50;
+}
+void EscribirLineaRegistroVentas(string LineaEscribir){
+    ofstream archivo("RegistroDeVentas.txt",ios::app);
+    if(archivo.fail())
+        cout<<"Error al abrir el archivo. EscribirLineaRegistroVentas. "<<endl;
+    else {
+        archivo<<LineaEscribir<<endl;
+    }
+    archivo.close();
+}
+
+void precios_individuales( int &PrecioApagar,int opcion){
+    switch (opcion) {
+    case 1:{
+        PrecioApagar+=7000;
+        break;
+    }
+    case 2:{
+        PrecioApagar+=6500;
+        break;
+    }
+    case 3:{
+        PrecioApagar+=3000;
+        break;
+    }
+    case 4:{
+        PrecioApagar+=4000;
+        break;
+    }
+    case 5:{
+        PrecioApagar+=4500;
+        break;
+    }
+    case 6:{
+        PrecioApagar+=5000;
+        break;
+    }
+    case 7:{
+        PrecioApagar+=4500;
+        break;
+    }
+    case 8:{
+        PrecioApagar+=4000;
+        break;
+    }
+    case 9:{
+        PrecioApagar+=7000;
+        break;
+    }
+    case 10:{
+        PrecioApagar+=6200;
+        break;
+    }
+    case 11:{
+        PrecioApagar+=5400;
+        break;
+    }
+    }
+}
+void SeleccionarSaborGaseosa(map<string,ProductoInvetario> & AlmacenarInventario, int PrecioAPagar, string AnalizarContenidoCombo){
+    map<string,int> ProductoCantidad;
+    vector <string> Gaseosas{"Gaseosa Pepsi","Cocacola","Gaseosa Postobon Manzana","Gaseosa Postobon Uva","Dry Ginger"};
+    map<string,ProductoInvetario> LeerProductosAgregarInventario;
+    LeerArticulosParaAgregarInventario(LeerProductosAgregarInventario);
+    bool bandera=true;
+    int numeroOnzas;
+    string indice;
+    while (AnalizarContenidoCombo != "") {
+        ProductoCantidad=DesglozarElementosDelContenidoDeUnCombo(AnalizarContenidoCombo);
+        if(ProductoCantidad.begin()->first=="Vasos Plasticos 44 Oz" or ProductoCantidad.begin()->first=="Vasos Plasticos 32 Oz" or ProductoCantidad.begin()->first=="Vasos Plasticos 22 Oz"){
+            if(ProductoCantidad.begin()->first=="Vasos Plasticos 44 Oz")
+                numeroOnzas=44;
+            else if (ProductoCantidad.begin()->first=="Vasos Plasticos 32 Oz")
+                numeroOnzas=32;
+            else
+                numeroOnzas=22;
+            for (int iterador=0;iterador<Gaseosas.size();iterador++) {
+                cout<<iterador+1<<") "<<Gaseosas[iterador]<<endl;
+            }
+            for (int auxiliar=1;auxiliar<=ProductoCantidad.begin()->second;auxiliar++) {
+                do{
+                    char sabor;
+                    do{
+                        cout<<"De que sabor desea la gaseosa "<<auxiliar<<": "<<endl;
+                        cin>>sabor;
+                        if(sabor != '1' and sabor != '2' and sabor != '3' and sabor !='4')
+                            cout<<"Opcion desconocida. "<<endl;
+                    }while(sabor != '1' and sabor != '2' and sabor != '3' and sabor !='4');
+                    switch (sabor) {
+                    case'1':{
+                        indice="19";
+                        break;
+                    }
+                    case'2':{
+                        indice="20";
+                        break;
+                    }
+                    case'3':{
+                        indice="21";
+                        break;
+                    }
+                    case'4':{
+                        indice="22";
+                        break;
+                    }
+                    case'5':{
+                        indice="23";
+                        break;
+                    }
+                    }
+                    if(SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,indice,numeroOnzas)){
+                        PrecioAPagar+=LeerProductosAgregarInventario[indice].precio/(LeerProductosAgregarInventario[indice].NumeroDePaquetes*LeerProductosAgregarInventario[indice].UnidadesPorPaquete)*numeroOnzas;
+                        GastarRecursosInventario(AlmacenarInventario,indice,numeroOnzas);
+                    }
+                    else {
+                        cout<<"No tenemos suficiente gaseosa "<<Gaseosas[sabor-48]<<" para satisfacer tu pedido. "<<endl;
+                        cout<<"Prueba otro sabor. "<<endl;
+                    }
+                }while(SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,indice,numeroOnzas)==false);
+            }
+        }
+
+    }
+    LeerProductosAgregarInventario.clear();
 }
 
 bool Administrador(){

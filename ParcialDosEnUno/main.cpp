@@ -11,10 +11,13 @@ int main()
     map<string,ComboCinema> TodosLosCombos;
     map<string,ProductoInvetario> AlmacenarInventario;
     map<string,Usuario> UsuariosRegistrados;
-    char OpcionesGneral,OpcionAdmin;
+    char OpcionesGneral,OpcionAdmin,OpcionUser;
     LeerUsuariosDelArchivo(UsuariosRegistrados);
     LeerInventario(AlmacenarInventario);
     LeerCombos(TodosLosCombos);
+    Usuario auxiliar;
+    auxiliar.inicializandoTodo("Anonimo","","0");
+    UsuariosRegistrados.insert(pair<string,Usuario>("Anonimo",auxiliar));
     do{
         OpcionesGneral=MenuGeneal();
         switch (OpcionesGneral) {
@@ -59,6 +62,7 @@ int main()
                         for(auto i:PeticionesPendientes){
                             NotificarPeticionDeRegistro(i.first,i.second);
                         }
+                        UsuariosRegistrados.erase("Anonimo");
                         EscribirArchivoInventario(AlmacenarInventario);
                         cout<<"Todos los cambios se han guardado correctamente."<<endl;
                         break;
@@ -69,7 +73,10 @@ int main()
             break;
         }
         case 'B':{
+                do{
+                OpcionUser=MenuUsuario();
 
+                }while(OpcionUser!='C');
             break;
         }
         case 'C':{
