@@ -14,7 +14,7 @@ bool Administrador();
 void LeerUsuariosDelArchivo( map<string,Usuario>&);
 void EscribirUsuariosEnElArchivo(map<string,Usuario>&);
 void EliminarUsuario(map<string,Usuario>&);
-void AgregarUsuarios( map<string,Usuario> &);
+void AgregarUsuarios( map<string,Usuario> &,map<string,string> & );
 int contar_lineas(string );
 string NumeroDocumetnoCadenaCaracteres(long long);
 string NumeroCadenaCaracterer(int);
@@ -39,4 +39,9 @@ void FormarCombos(map<string,ProductoInvetario>&, map<string,ComboCinema>& );
 void AgregarAInventario(map<string,ProductoInvetario>&,int &);
 void EscribirArchivoInventario(map<string,ProductoInvetario>&);
 void EscribirEnArchiParaCombos(map<string,ComboCinema>&);
+bool HayOtraPeticionConElMismoNombre(string);
+void NotificarPeticionDeRegistro(string nombre, string);
+void ExtraerSolicitudesDeRegistro(map<string,string> &);
+void ObservarPeticiones(map<string,string> &);
+void RealizarPeticion( map<string,Usuario> &);
 #endif // FUNCIONES_H

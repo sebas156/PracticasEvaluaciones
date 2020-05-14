@@ -133,10 +133,29 @@ void EliminarUsuario(map<string,Usuario>& UsuariosRegistrados){
     }
 }
 
+void ExtraerSolicitudesDeRegistro(map<string,string> & PeticionesPendientes){
+    fstream archivo("SolicitudesDeRegistro.txt");
+    string linea;
+    if(archivo.fail())
+        cout<<"Error al abrir el archivo. ExtraerSolicitudesDeRegistro"<<endl;
+    else {
+        while (!archivo.eof()) {
+            getline(archivo,linea);
+            if(linea!="")
+                PeticionesPendientes.insert(pair<string,string>(linea.substr(0,linea.find('+')),linea.substr(linea.find('+')+1,linea.size()-linea.find('+'))));
+        }
+    }
+    archivo.close();
+}
+
+void ObservarPeticiones(map<string,string> & PeticionesPendientes){
+    for (auto i: PeticionesPendientes) {
+        cout<<"Usuario: "<<i.first<<" Contrasena: "<<i.second;
+    }
+}
 bool verificando_cedula(string documentoING,map<string,Usuario> &UsuariosRegistrados){
     auto i=UsuariosRegistrados.find(documentoING);
     if(i!=UsuariosRegistrados.end()){
-        cout<<"El nombre de usuario ya se encuentra en uso. "<<endl;
         return false;
     }
     else {
@@ -169,13 +188,37 @@ void IncorporarUsuarioAlSistema( map<string,Usuario> &UsuariosRegistrados,string
     UsuariosRegistrados.insert(pair<string,Usuario>(nombre,auxilar));
 }
 
-void AgregarUsuarios( map<string,Usuario> &UsuariosRegistrados){
+void AgregarUsuarios( map<string,Usuario> &UsuariosRegistrados,map<string,string> & PeticionesPendientes){
     string documento,clave;
     getline(cin,documento);
     do{
         cout<<"Ingrese el nombre con el cual el usuario desea quedar registrado: "<<endl;
         getline(cin,documento);
-    }while(!verificando_cedula(documento,UsuariosRegistrados));
+        if(PeticionesPendientes.find(documento)==PeticionesPendientes.end())
+            cout<<"Lo setimos pero este no es un nombre que este dentro de las peticiones. "<<endl;
+    }while(PeticionesPendientes.find(documento)==PeticionesPendientes.end());
+    auto i= PeticionesPendientes.find(documento);
+    do{
+        cout<<"La clave del usuario debe ser de exactamente 8 caracteres; ademas, debe contener numeros y letras. "<<endl;
+        cout<<"Ingrese la clave del usuario: "<<endl;
+        cin>>clave;
+        if(i->first!=clave)
+            cout<<"Este clave no corresponde con la peticion. "<<endl;
+    }while(i->first!=clave);
+
+    IncorporarUsuarioAlSistema(UsuariosRegistrados,documento,clave,"0");
+    cout<<"El usuario se ha agregado exitosamente. "<<endl;
+}
+
+void RealizarPeticion( map<string,Usuario> &UsuariosRegistrados){
+    string documento,clave;
+    getline(cin,documento);
+    do{
+        cout<<"Ingrese el nombre con el cual el desea quedar registrado: "<<endl;
+        getline(cin,documento);
+        if(verificando_cedula(documento,UsuariosRegistrados)==false or HayOtraPeticionConElMismoNombre(documento)==false)
+            cout<<"Lo sentimos pero este nombre ya se encuentra en uso. "<<endl;
+    }while(verificando_cedula(documento,UsuariosRegistrados)==false or HayOtraPeticionConElMismoNombre(documento)==false);
 
     do{
         cout<<"La clave del usuario debe ser de exactamente 8 caracteres; ademas, debe contener numeros y letras. "<<endl;
@@ -183,11 +226,40 @@ void AgregarUsuarios( map<string,Usuario> &UsuariosRegistrados){
         cin>>clave;
     }while(!verificando_clave(clave));
 
-    IncorporarUsuarioAlSistema(UsuariosRegistrados,documento,clave,"0");
-    cout<<"El usuario se ha agregado exitosamente. "<<endl;
+    NotificarPeticionDeRegistro(documento,clave);
+    cout<<"Peticion enviada exitosamente. "<<endl;
 }
 
-
+bool HayOtraPeticionConElMismoNombre(string CandidatoNombre){
+    int indicador=contar_lineas("SolicitudesDeRegistro.txt");
+    if(indicador==0)
+        return true;
+    else {
+        fstream archivo("SolicitudesDeRegistro.txt");
+        string linea;
+        if(archivo.fail())
+            cout<<"Error al abrir el archivo.  HayOtraPeticionConElMismoNombre"<<endl;
+        else {
+            while (!archivo.eof()) {
+                getline(archivo,linea);
+                if(linea.find(CandidatoNombre)!=-1){
+                    return false;
+                }
+            }
+        }
+        return true;
+        archivo.close();
+    }
+}
+void NotificarPeticionDeRegistro(string nombre, string contrasena){
+    ofstream archivo("SolicitudesDeRegistro.txt",ios::app);
+    if(archivo.fail()){
+        cout<<"Error al abrir el archivo. NotificarPeticionDeRegistro. "<<endl;
+    }else {
+        archivo<<nombre+"+"+contrasena<<endl;
+    }
+    archivo.close();
+}
 void GastarRecursosInventario(map<string,ProductoInvetario>& AlmacenarInventario,string PosicionProductoUsado, int UnidadesUsadas){
     auto i = AlmacenarInventario.find( PosicionProductoUsado);
     i->second.NumeroDePaquetes= (((i->second.UnidadesPorPaquete)*(i->second.NumeroDePaquetes))-UnidadesUsadas)*(i->second.NumeroDePaquetes)/((i->second.UnidadesPorPaquete)*(i->second.NumeroDePaquetes));

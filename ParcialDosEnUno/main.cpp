@@ -22,6 +22,8 @@ int main()
             if(Administrador()){
                 do{
                     OpcionAdmin=MenuAdministrador();
+                    map<string,string> PeticionesPendientes;
+                    ExtraerSolicitudesDeRegistro(PeticionesPendientes);
                     switch (OpcionAdmin) {
                     case 'A':{
                         ObservarInventario(AlmacenarInventario);
@@ -36,7 +38,10 @@ int main()
                         break;
                     }
                     case 'D':{
-                        AgregarUsuarios(UsuariosRegistrados);
+                        if(!PeticionesPendientes.empty())
+                            AgregarUsuarios(UsuariosRegistrados,PeticionesPendientes);
+                        else
+                            cout<<"Imposible agregar algun usuario si no hay peticiones. "<<endl;
                         break;
                     }
                     case 'E':{
@@ -44,12 +49,16 @@ int main()
                         break;
                     }
                     case 'F':{
+                        ObservarPeticiones(PeticionesPendientes);
                         break;
                     }
                     case 'G':{
                         break;
                     }
                     case 'I':{
+                        for(auto i:PeticionesPendientes){
+                            NotificarPeticionDeRegistro(i.first,i.second);
+                        }
                         EscribirArchivoInventario(AlmacenarInventario);
                         cout<<"Todos los cambios se han guardado correctamente."<<endl;
                         break;
@@ -60,10 +69,17 @@ int main()
             break;
         }
         case 'B':{
-            AgregarUsuarios(UsuariosRegistrados);
+
             break;
         }
         case 'C':{
+            RealizarPeticion(UsuariosRegistrados);
+            break;
+        }
+        case 'D':{
+            break;
+        }
+        case 'E':{
             EscribirUsuariosEnElArchivo(UsuariosRegistrados);
             cout<<"Todos los combios han sido guardados exitosamente. "<<endl;
             break;
