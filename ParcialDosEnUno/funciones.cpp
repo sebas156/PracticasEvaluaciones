@@ -19,7 +19,7 @@ char MenuAdministrador(){
     cout<<"E) Eliminar Usuarios. "<<endl;
     cout<<"F) Solicitudes de registro. "<<endl;
     cout<<"G) Generar reporte de las ventas hasta el momento. "<<endl;
-    cout<<"H) Mostrar ganancias y perdidas."<<endl;
+    cout<<"H) Mostrar ganancias."<<endl;
     cout<<"I) Cerrar Sesion. "<<endl;
     cin>>opcion;
     return opcion;
@@ -70,7 +70,7 @@ void ObservarProductos(map<string,ComboCinema> &TodosLosCombos){
     }
 }
 
-void RealizarCompra(map<string,Usuario> UsuariosRegistrados,map<string,ComboCinema> &TodosLosCombos,map<string,ProductoInvetario> & AlmacenarInventario,string usuarioOriginal){
+void RealizarCompra(map<string,Usuario>& UsuariosRegistrados,map<string,ComboCinema> &TodosLosCombos,map<string,ProductoInvetario> & AlmacenarInventario,string usuarioOriginal){
     string usuario=usuarioOriginal;
     char ComboOIndependiente;
     int cantidad;
@@ -224,6 +224,22 @@ void EscribirLineaRegistroVentas(string LineaEscribir){
     archivo.close();
 }
 
+void ImprimirRegistroVentas(){
+    ifstream archivo("RegistroDeVentas.txt");
+    string LeerLinea;
+    if (archivo.fail()) {
+        cout<<"Error al abrir el archivo. "<<endl;
+    }
+    else {
+        while (archivo.eof()) {
+            getline(archivo,LeerLinea);
+            if(LeerLinea!="")
+                cout<<LeerLinea<<endl;
+        }
+    }
+    archivo.close();
+
+}
 void precios_individuales( int &PrecioApagar,int opcion){
     switch (opcion) {
     case 1:{

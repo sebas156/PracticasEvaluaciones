@@ -56,6 +56,14 @@ int main()
                         break;
                     }
                     case 'G':{
+                        if(contar_lineas("RegistroDeVentas.txt")==0)
+                            cout<<"Aun no hay un registro disponible. "<<endl;
+                        else {
+                            ImprimirRegistroVentas();
+                        }
+                        break;
+                    }
+                    case 'H':{
                         break;
                     }
                     case 'I':{
@@ -73,10 +81,41 @@ int main()
             break;
         }
         case 'B':{
-                do{
-                OpcionUser=MenuUsuario();
+                string NombreUsuario;
+                string contrasena;
+                cout<<"Ingrese su nombre de usuario: "<<endl;
+                getline(cin,NombreUsuario);
+                getline(cin,NombreUsuario);
+                cout<<"Ingrese su contrasena: "<<endl;
+                getline(cin,contrasena);
+                getline(cin,contrasena);
+                if(UsuariosRegistrados[NombreUsuario].clave==contrasena){
+                    do{
+                    OpcionUser=MenuUsuario();
+                    switch (OpcionUser) {
+                    case 'A':{
+                        ObservarProductos(TodosLosCombos);
+                        break;
+                    }
+                    case 'B':{
+                        RealizarCompra(UsuariosRegistrados,TodosLosCombos,AlmacenarInventario,NombreUsuario);
+                        break;
+                    }
 
-                }while(OpcionUser!='C');
+                    case 'C':{
+                        cout<<"Gracias por comprar en nuestro cinema. "<<endl;
+                        cout<<"Distruta tu pelicula. "<<endl;
+                        break;
+                    }
+                    default:
+                        cout<<"Opcion No especificada. "<<endl;
+                        break;
+                    }
+                    }while(OpcionUser!='C');
+                }
+                else {
+                    cout<<"Usuario o contrasena incorrectos. "<<endl;
+                }
             break;
         }
         case 'C':{
@@ -84,6 +123,29 @@ int main()
             break;
         }
         case 'D':{
+            string NombreUsuario="Anonimo";
+            do{
+            OpcionUser=MenuUsuario();
+            switch (OpcionUser) {
+            case 'A':{
+                ObservarProductos(TodosLosCombos);
+                break;
+            }
+            case 'B':{
+                RealizarCompra(UsuariosRegistrados,TodosLosCombos,AlmacenarInventario,NombreUsuario);
+                break;
+            }
+
+            case 'C':{
+                cout<<"Gracias por comprar en nuestro cinema. "<<endl;
+                cout<<"Distruta tu pelicula. "<<endl;
+                break;
+            }
+            default:
+                cout<<"Opcion No especificada. "<<endl;
+                break;
+            }
+            }while(OpcionUser!='C');
             break;
         }
         case 'E':{
