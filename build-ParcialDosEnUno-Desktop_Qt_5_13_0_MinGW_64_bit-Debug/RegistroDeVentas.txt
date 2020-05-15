@@ -1,58 +1,13 @@
-Fecha: 14-05-2020 Hora: 20-28-11
-Usuario: Sebastian Bonilla Cruz .Fila: H .Asiento: 8
+
+Fecha: 15-05-2020 Hora: 02-29-55
+Usuario: Sebastian Bonilla Cruz .Fila: G .Asiento: 7
+BONILLAZO 3.0 1
+Precio Total: 16430
+        
+Fecha: 15-05-2020 Hora: 02-53-46
+Usuario: Anonimo .Fila: T .Asiento: 6
 Hamburguesa 1
-Caja mediana de palomitas 1
+Paquete de nachos 1
 Vaso de gaseosa grande 1
-BONILLAZO 1
-Precio Total: 28118
-        
-Fecha: 14-05-2020 Hora: 21-07-31
-Usuario: Sebastian Bonilla Cruz .Fila: H .Asiento: 6
-Paquete de detodito 2
-Fecha: 14-05-2020 Hora: 21-09-17
-Usuario: Sebastian Bonilla Cruz .Fila: F .Asiento: 1
-Perro caliente 1
-Fecha: 14-05-2020 Hora: 21-11-00
-Usuario: Sebastian Bonilla Cruz .Fila: F .Asiento: 3
-Paquete de detodito 1
-Fecha: 14-05-2020 Hora: 21-11-56
-Usuario: Sebastian Bonilla Cruz .Fila: F .Asiento: 2
-Fecha: 14-05-2020 Hora: 21-13-00
-Usuario: Sebastian Bonilla Cruz .Fila: F .Asiento: 3
-Perro caliente 1
-Fecha: 14-05-2020 Hora: 21-16-46
-Usuario: Sebastian Bonilla Cruz .Fila: G .Asiento: 4
-Hamburguesa 1
-Paquete de doritos 1
-Paquete de detodito 1
-Caja mediana de palomitas 1
-Perro caliente 1
-Precio Total: 26500
-        
-Fecha: 14-05-2020 Hora: 21-19-56
-Usuario: Sebastian Bonilla Cruz .Fila: G .Asiento: 1
-Perro caliente 1
-BONILLAZO 3.0 2
-Precio Total: 41345
-        
-Fecha: 14-05-2020 Hora: 21-35-24
-Usuario: Sebastian Bonilla Cruz .Fila: G .Asiento: 5
-Fecha: 14-05-2020 Hora: 21-36-29
-Usuario: Sebastian Bonilla Cruz .Fila: L .Asiento: 7
-Fecha: 14-05-2020 Hora: 21-37-46
-Usuario: Anonimo .Fila: F .Asiento: 3
-Fecha: 14-05-2020 Hora: 21-38-29
-Usuario: Sebastian Bonilla Cruz .Fila: F .Asiento: 5
-Fecha: 14-05-2020 Hora: 21-42-15
-Usuario: Anonimo .Fila: D .Asiento: 1
-Perro caliente 1
-Fecha: 14-05-2020 Hora: 21-43-22
-Usuario: Anonimo .Fila: G .Asiento: 6
-Fecha: 14-05-2020 Hora: 21-50-36
-Usuario: Anonimo .Fila: F .Asiento: 3
-Fecha: 14-05-2020 Hora: 21-54-05
-Usuario: Anonimo .Fila: F .Asiento: 5
-Perro caliente 1
-Hamburguesa 1
-Precio Total: 13500
+Precio Total: 17000
         

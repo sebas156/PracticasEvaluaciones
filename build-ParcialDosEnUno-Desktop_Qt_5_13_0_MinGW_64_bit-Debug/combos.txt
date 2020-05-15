@@ -1,4 +1,6 @@
 BONILLAZO+1 Hamburguesa,1 Caja mediana de palomitas y 1 Vaso de gaseosa grande.+7030+3+
-BONILLAZO 2.0+1 Perro caliente,1 Paquete de detodito y 1 Vaso de gaseosa grande.+8440+1+
+BONILLAZO 2.0+1 Perro caliente,1 Paquete de detodito y 1 Vaso de gaseosa grande.+8440+3+
 BONILLAZO 3.0+1 Hamburguesa,1 Perro caliente,1 Caja mediana de palomitas y 2 Vasos de gaseosa grande.+11470+4+
+EINSTEIN+1 Caja grande de palomitas,1 Hamburguesa,1 Perro caliente y 2 Vasos de gaseosa grande.+11630+3+
 NARUTO+1 Hamburguesa,1 Perro caliente,2 Paquetes de doritos y 2 Vasos de gaseosa grande.+17320+2+
+TESLA+1 Perro caliente,1 Caja grande de palomitas y 1 Vaso de gaseosa mediana.+5050+2+

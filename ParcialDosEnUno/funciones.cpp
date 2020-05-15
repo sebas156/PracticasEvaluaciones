@@ -19,7 +19,8 @@ char MenuAdministrador(){
     cout<<"E) Eliminar Usuarios. "<<endl;
     cout<<"F) Solicitudes de registro. "<<endl;
     cout<<"G) Generar reporte de las ventas hasta el momento. "<<endl;
-    cout<<"H) Cerrar Sesion. "<<endl;
+    cout<<"H) Generar registro de comprar para inventario. "<<endl;
+    cout<<"I) Cerrar Sesion. "<<endl;
     cin>>opcion;
     return opcion;
 }
@@ -54,6 +55,21 @@ char SubMenuFormarCombo(){
     return opcion;
 }
 
+void ImprimirRegistroDeComprasAdministrador(){
+    ifstream archivo("RegistroDeComprasInventario.txt");
+    string linea;
+    if(archivo.fail())
+        cout<<"Error al abrir el archivo. "<<endl;
+    else {
+        while (!archivo.eof()) {
+            getline(archivo,linea);
+            if(linea!="")
+                cout<<linea<<endl;
+
+        }
+    }
+    archivo.close();
+}
 void ObservarProductos(map<string,ComboCinema> &TodosLosCombos){
     //Esta funcion imprime los diferentes articulos que hay disponibles.
     vector<string> ParaFormarUnCombo{"Hamburguesa","Perro Caliente","Nachos","Doritos","Detodito","Caja grande de palomitas.","Caja mediana de palomitas.","Caja pequena de palomitas","Vaso grande de gaseosa.","Vaso mediano de gaseosa.","Vaso pequeno de gaseosa."};

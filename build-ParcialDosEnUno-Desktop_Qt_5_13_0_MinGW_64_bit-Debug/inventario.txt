@@ -1,24 +1,24 @@
-1+Pan para hamburguesa+6+6.66667+0
-10+Doritos+1+1+0
-11+Detodito+1+4+0
-12+Palomitas+500+4.8+0
-13+Vasos plasticos 44 Oz+10+1.6+0
-14+Vasos plasticos 32 Oz+10+4+0
+1+Pan para hamburguesa+6+5.73+0
+10+Doritos+1+9+0
+11+Detodito+1+2+0
+12+Palomitas+500+3.1+0
+13+Vasos plasticos 44 Oz+10+0.7+0
+14+Vasos plasticos 32 Oz+10+3.8+0
 15+Vasos plasticos 22 Oz+10+5+0
-16+Caja para palomitas 170 Oz+30+12+0
+16+Caja para palomitas 170 Oz+30+11.2367+0
 17+Caja para palomitas 130 Oz+30+4.87+0
 18+Caja para palomitas 85 Oz+30+6+0
-19+Gaseosa Pepsi+102+3+0
-2+Carne para hamburguesa+4+4.25+0
-20+Cocacola+102+5+0
+19+Gaseosa Pepsi+102+1.173+0
+2+Carne para hamburguesa+4+3.25+0
+20+Cocacola+102+3.173+0
 21+Gaseosa Postobon Manzana+102+3+0
 22+Gaseosa Postobon Uva+102+8+0
 23+Dry Ginger+102+2+0
 24+Paca de botellas de agua+6+2+0
-3+Queso Mozarella Tajado+20+3.6+0
-4+Tomates+10+3.3+0
-5+Pan para perro+6+3.03667+0
-6+Chorizo+8+3.9+0
-7+Ripio de papas+182+4.52615+0
-8+Huevos de codorniz+60+5.43667+0
-9+Nachos+1+6+0
+3+Queso Mozarella Tajado+20+3.3+0
+4+Tomates+10+2.9+0
+5+Pan para perro+6+1.60333+0
+6+Chorizo+8+3.25+0
+7+Ripio de papas+182+3.42231+0
+8+Huevos de codorniz+60+5.50333+0
+9+Nachos+1+5+0

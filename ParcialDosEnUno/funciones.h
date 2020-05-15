@@ -52,4 +52,5 @@ void PagarCuenta(int);
 void ImprimirRegistroVentas();
 void ObservarProductos(map<string,ComboCinema> &);
 void RealizarCompra(map<string,Usuario>&,map<string,ComboCinema> &,map<string,ProductoInvetario> &,string);
+void ImprimirRegistroDeComprasAdministrador();
 #endif // FUNCIONES_H

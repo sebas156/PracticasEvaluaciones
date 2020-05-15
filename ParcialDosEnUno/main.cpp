@@ -3,6 +3,8 @@
 #include "objetospertinentes.h"
 #include <map>
 #include <vector>
+#include <fstream>
+
 using namespace std;
 
 int main()
@@ -65,6 +67,12 @@ int main()
                         break;
                     }
                     case 'H':{
+                        ImprimirRegistroDeComprasAdministrador();
+                        break;
+                    }
+                    case 'I':{
+                        ofstream archivo("SolicitudesDeRegistro.txt");
+                        archivo.close();
                         for(auto i:PeticionesPendientes){
                             NotificarPeticionDeRegistro(i.first,i.second);
                         }
@@ -74,7 +82,7 @@ int main()
                         break;
                     }
                     }
-                }while(OpcionAdmin != 'H');
+                }while(OpcionAdmin != 'I');
             }
             break;
         }
