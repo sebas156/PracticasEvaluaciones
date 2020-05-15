@@ -19,8 +19,7 @@ char MenuAdministrador(){
     cout<<"E) Eliminar Usuarios. "<<endl;
     cout<<"F) Solicitudes de registro. "<<endl;
     cout<<"G) Generar reporte de las ventas hasta el momento. "<<endl;
-    cout<<"H) Mostrar ganancias."<<endl;
-    cout<<"I) Cerrar Sesion. "<<endl;
+    cout<<"H) Cerrar Sesion. "<<endl;
     cin>>opcion;
     return opcion;
 }
@@ -56,6 +55,7 @@ char SubMenuFormarCombo(){
 }
 
 void ObservarProductos(map<string,ComboCinema> &TodosLosCombos){
+    //Esta funcion imprime los diferentes articulos que hay disponibles.
     vector<string> ParaFormarUnCombo{"Hamburguesa","Perro Caliente","Nachos","Doritos","Detodito","Caja grande de palomitas.","Caja mediana de palomitas.","Caja pequena de palomitas","Vaso grande de gaseosa.","Vaso mediano de gaseosa.","Vaso pequeno de gaseosa."};
     cout<<"Combos: "<<endl;
     if(TodosLosCombos.empty())
@@ -63,37 +63,50 @@ void ObservarProductos(map<string,ComboCinema> &TodosLosCombos){
     else {
         MostrarCombos(TodosLosCombos);
     }
-    cout<<endl;
     cout<<"Articulos independientes: "<<endl;
     for (int i=0;i<ParaFormarUnCombo.size();i++) {
         cout<<i+1<<") "<<ParaFormarUnCombo[i]<<endl;
     }
+    cout<<endl;
 }
 
 void RealizarCompra(map<string,Usuario>& UsuariosRegistrados,map<string,ComboCinema> &TodosLosCombos,map<string,ProductoInvetario> & AlmacenarInventario,string usuarioOriginal){
+    //Permite que el usuario compre articulos.
     string usuario=usuarioOriginal;
     char ComboOIndependiente;
     int cantidad;
     char CanastaDeCompras;
     int DineroAPagar=0;
     string NombrePedido;
-    auto t = std::time(nullptr);
+    auto t = std::time(nullptr); // Obtiene la fecha y la hora.
     auto tm = *std::localtime(&t);
     ostringstream oss;
     oss << put_time(&tm, "%d-%m-%Y %H-%M-%S");
     auto str = oss.str();
     str= "Fecha: "+ str.substr(0,str.find(" "))+" Hora: "+ str.substr(str.find(" ")+1,str.size()-str.find(" "));
     EscribirLineaRegistroVentas(str);
-    cout<<"Por facor sea cuidadoso al ingresar los siguientes datos. "<<endl;
+    cout<<"Por favor sea cuidadoso al ingresar los siguientes datos. "<<endl; // Pide al usuario que ingrese el puesto en el cine.
     cout<<"Ingrese la fila y el asiento a la que se debe llevar el pedido: "<<endl;
-    cout<<"Fila: "<<endl;
-    cin>>NombrePedido;
-    usuario+=" Fila: "+NombrePedido;
-    cout<<"Asiento: "<<endl;
-    cin>>NombrePedido;
-    usuario+=" Asiento: "+NombrePedido;
+    do{
+        cout<<"Fila (A - Z): "<<endl;
+        cin>>NombrePedido;
+        if(NombrePedido[0]<65 or NombrePedido[0]>90)
+            cout<<"Fila fuera de rango. "<<endl;  //Verifica que la fila y asienta enten dentro del rango establecido.
+    }while(NombrePedido[0]<65 or NombrePedido[0]>90);
+    NombrePedido=NombrePedido[0];
+    usuario+=" .Fila: "+NombrePedido;
+    int auxiliar;
+    do{
+        cout<<"Asiento (1-15): "<<endl;
+        cin>>NombrePedido;
+        auxiliar=StringAnumero(NombrePedido);
+        if(auxiliar<1 or auxiliar > 15)
+            cout<<"Asiento fuera de rango. "<<endl;
+    }while(auxiliar<1 or auxiliar > 15);
+    usuario+=" .Asiento: "+NombrePedido;
     EscribirLineaRegistroVentas("Usuario: "+usuario);
     do{
+        ObservarProductos(TodosLosCombos);
         do{
             cout<<"Que producto desea comprar? "<<endl;
             cout<<"Combo -> 1.\nIndependiente->2"<<endl;
@@ -113,20 +126,21 @@ void RealizarCompra(map<string,Usuario>& UsuariosRegistrados,map<string,ComboCin
             else {
                 if(TodosLosCombos[NombrePedido].CuantosDeEsteHay>=cantidad){
                     for (int i=1;i<=cantidad;i++) {
-                        SeleccionarSaborGaseosa(AlmacenarInventario,DineroAPagar,TodosLosCombos[NombrePedido].Componentes);
+                        SeleccionarSaborGaseosa(AlmacenarInventario,DineroAPagar,TodosLosCombos[NombrePedido].Componentes); // Permite realizar la seleccion de gaseosa.
                     }
                     TodosLosCombos[NombrePedido].CuantosDeEsteHay-=cantidad;
-                    EscribirLineaRegistroVentas(NombrePedido+" "+NumeroCadenaCaracterer(cantidad));
-                    DineroAPagar+=TodosLosCombos[NombrePedido].precio*cantidad;
-                    UsuariosRegistrados[usuarioOriginal].puntos+=TodosLosCombos[NombrePedido].precio*0.05;
-                }
+                    EscribirLineaRegistroVentas(NombrePedido+" "+NumeroCadenaCaracterer(cantidad)); //Registra el producto vendido en el archivo de registro de ventas.
+                    DineroAPagar+=TodosLosCombos[NombrePedido].precio*cantidad; //Aumenta el costo total.
+                    UsuariosRegistrados[usuarioOriginal].puntos+=TodosLosCombos[NombrePedido].precio*0.05; // Sistema de puntos.
+                }   // Los puntos que va a ganar un usuario por compra de combo es una francion del precion del mismo.
                 else {
                     cout<<"No hay la cantidad de combos suficientes para satisfacer el pedido."<<endl;
                 }
             }
         }
         else {
-            vector<string> ParaFormarUnCombo{"Hamburguesa","Perro Caliente","Nachos","Doritos","Detodito","Caja grande de palomitas.","Caja mediana de palomitas.","Caja pequena de palomitas","Vaso grande de gaseosa.","Vaso mediano de gaseosa.","Vaso pequeno de gaseosa."};
+            //Los diferentes platos disponibles en el cine.
+            vector<string> ParaFormarUnCombo{"Hamburguesa","Perro caliente","Paquete de nachos","Paquete de doritos","Paquete de detodito","Caja grande de palomitas","Caja mediana de palomitas","Caja pequena de palomitas","Vaso de gaseosa grande","Vaso de gaseosa mediana","Vaso de gaseosa pequena"};
             map <string,int> ProductoCantidad;
             bool bandera;
             string opcion;
@@ -140,7 +154,8 @@ void RealizarCompra(map<string,Usuario>& UsuariosRegistrados,map<string,ComboCin
             int numero;
             cout<<"Cuantas unidades desea agregar? "<<endl;
             cin>>numero;
-            string AnalizarContenidoCombo=NumeroCadenaCaracterer(numero)+ParaFormarUnCombo[opcionNumero-1];
+            //Analiza si hay los suministros suficientes para formar el plato ingresado.
+            string AnalizarContenidoCombo=NumeroCadenaCaracterer(numero)+" "+ParaFormarUnCombo[opcionNumero-1]+",";
             while(AnalizarContenidoCombo != ""){
                 ProductoCantidad=DesglozarElementosDelContenidoDeUnCombo(AnalizarContenidoCombo);
                 bandera=QueSeNecesitaParaCadaPreparacion(AlmacenarInventario,ProductoCantidad,numero);
@@ -150,13 +165,15 @@ void RealizarCompra(map<string,Usuario>& UsuariosRegistrados,map<string,ComboCin
                 }
             }
             if(bandera==true){
-                AnalizarContenidoCombo=NumeroCadenaCaracterer(numero)+ParaFormarUnCombo[opcionNumero-1];
+                //De confirmarce que si hay la cantidad de inventario suficiente para preparar e platillo estas las siguientes lineas de codigo retan
+                //esa cantidad.
+                AnalizarContenidoCombo=NumeroCadenaCaracterer(numero)+" "+ParaFormarUnCombo[opcionNumero-1]+",";
                 while (AnalizarContenidoCombo!= "") {
                     ProductoCantidad=DesglozarElementosDelContenidoDeUnCombo(AnalizarContenidoCombo);
                     EjecutarGastoAutomatico(AlmacenarInventario,ProductoCantidad,numero);
                 }
                 precios_individuales(DineroAPagar,opcionNumero);
-                EscribirLineaRegistroVentas(ParaFormarUnCombo[opcionNumero]+" "+NumeroCadenaCaracterer(numero));
+                EscribirLineaRegistroVentas(ParaFormarUnCombo[opcionNumero-1]+" "+NumeroCadenaCaracterer(numero));
             }
         }
         cout<<"Desea agregar otro articulo al carrito? "<<endl;
@@ -169,6 +186,8 @@ void RealizarCompra(map<string,Usuario>& UsuariosRegistrados,map<string,ComboCin
     }
     EscribirLineaRegistroVentas("Precio Total: "+NumeroCadenaCaracterer(DineroAPagar));
     EscribirLineaRegistroVentas("        ");
+    PagarCuenta(DineroAPagar);
+    EscribirArchivoInventario(AlmacenarInventario);
 }
 
 void PagarCuenta(int PrecioTotal){
@@ -231,7 +250,7 @@ void ImprimirRegistroVentas(){
         cout<<"Error al abrir el archivo. "<<endl;
     }
     else {
-        while (archivo.eof()) {
+        while (!archivo.eof()) {
             getline(archivo,LeerLinea);
             if(LeerLinea!="")
                 cout<<LeerLinea<<endl;
@@ -241,6 +260,7 @@ void ImprimirRegistroVentas(){
 
 }
 void precios_individuales( int &PrecioApagar,int opcion){
+    //Esta funcion contiene los precios de las los productos individuales.
     switch (opcion) {
     case 1:{
         PrecioApagar+=7000;
@@ -288,7 +308,7 @@ void precios_individuales( int &PrecioApagar,int opcion){
     }
     }
 }
-void SeleccionarSaborGaseosa(map<string,ProductoInvetario> & AlmacenarInventario, int PrecioAPagar, string AnalizarContenidoCombo){
+void SeleccionarSaborGaseosa(map<string,ProductoInvetario> & AlmacenarInventario, int & PrecioAPagar, string AnalizarContenidoCombo){
     map<string,int> ProductoCantidad;
     vector <string> Gaseosas{"Gaseosa Pepsi","Cocacola","Gaseosa Postobon Manzana","Gaseosa Postobon Uva","Dry Ginger"};
     map<string,ProductoInvetario> LeerProductosAgregarInventario;
@@ -344,7 +364,8 @@ void SeleccionarSaborGaseosa(map<string,ProductoInvetario> & AlmacenarInventario
                         GastarRecursosInventario(AlmacenarInventario,indice,numeroOnzas);
                     }
                     else {
-                        cout<<"No tenemos suficiente gaseosa "<<Gaseosas[sabor-48]<<" para satisfacer tu pedido. "<<endl;
+                        int ads=sabor-49;
+                        cout<<"No tenemos suficiente "<<Gaseosas[ads]<<" para satisfacer tu pedido. "<<endl;
                         cout<<"Prueba otro sabor. "<<endl;
                     }
                 }while(SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,indice,numeroOnzas)==false);
@@ -356,7 +377,7 @@ void SeleccionarSaborGaseosa(map<string,ProductoInvetario> & AlmacenarInventario
 }
 
 bool Administrador(){
-
+    //Verifica si la clave ingresada el administrador es la correcta o no.
     fstream archivo("sudo.txt");
     string clave;
     string LeerLinea;
@@ -380,6 +401,7 @@ bool Administrador(){
 }
 
 void LeerUsuariosDelArchivo( map<string,Usuario>& UsuariosRegistrados){
+    //Esta funcion lee la informacion del archivo usuarios.txt y la lleva a la variable UsuariosRegistrados
     fstream archivo("usuarios.txt");
     string LeerLinea,nombre,clave,puntos;
     if(archivo.fail()){
@@ -404,6 +426,7 @@ void LeerUsuariosDelArchivo( map<string,Usuario>& UsuariosRegistrados){
 }
 
 void EscribirUsuariosEnElArchivo(map<string,Usuario>& UsuariosRegistrados){
+    //La informacion de la variable UsuariosRegistrados la lleva al archivo.
     ofstream archivo("usuarios.txt");
     string linea="";
     if(archivo.fail()){
@@ -419,6 +442,7 @@ void EscribirUsuariosEnElArchivo(map<string,Usuario>& UsuariosRegistrados){
 }
 
 void EliminarUsuario(map<string,Usuario>& UsuariosRegistrados){
+    //Elimina un usuario del sistema.
     string UsuarioEliminar;
     cout<<"Ingrese el nombre del usuario que desea eliminar: "<<endl;
     getline(cin,UsuarioEliminar);
@@ -434,6 +458,8 @@ void EliminarUsuario(map<string,Usuario>& UsuariosRegistrados){
 }
 
 void ExtraerSolicitudesDeRegistro(map<string,string> & PeticionesPendientes){
+    //Lee las solicitudes que esten en el archivo SolicitudesDeRegistro.txt
+    // Y la  lleva a la variable Peticiones pendientes.
     fstream archivo("SolicitudesDeRegistro.txt");
     string linea;
     if(archivo.fail())
@@ -449,11 +475,13 @@ void ExtraerSolicitudesDeRegistro(map<string,string> & PeticionesPendientes){
 }
 
 void ObservarPeticiones(map<string,string> & PeticionesPendientes){
+    //Imprime en pantallas las diferentes peticiones pendientes.
     for (auto i: PeticionesPendientes) {
-        cout<<"Usuario: "<<i.first<<" Contrasena: "<<i.second;
+        cout<<"Usuario: "<<i.first<<" Contrasena: "<<i.second<<endl;
     }
 }
 bool verificando_cedula(string documentoING,map<string,Usuario> &UsuariosRegistrados){
+    //Verifica si el nombre de usuario registrado se encuentra o no en uso.
     auto i=UsuariosRegistrados.find(documentoING);
     if(i!=UsuariosRegistrados.end()){
         return false;
@@ -465,6 +493,7 @@ bool verificando_cedula(string documentoING,map<string,Usuario> &UsuariosRegistr
 
 
 bool verificando_clave(string contrasena){
+    //Vaerifica si la clave ingresada cumple con las condiciones pecificadas.
     int numeros=0,letras=0;
     if(contrasena.size()<8 or contrasena.size()>8){
         return false;
@@ -483,17 +512,22 @@ bool verificando_clave(string contrasena){
 }
 
 void IncorporarUsuarioAlSistema( map<string,Usuario> &UsuariosRegistrados,string nombre, string contrasena,string puntos){
+    //Crea un objeto usuario y lo agrega a la variable Usuarios registrados.
+    //Que es la variable que contiene todos los usuarios del sistema.
     Usuario auxilar;
     auxilar.inicializandoTodo(nombre,contrasena,puntos);
     UsuariosRegistrados.insert(pair<string,Usuario>(nombre,auxilar));
 }
 
 void AgregarUsuarios( map<string,Usuario> &UsuariosRegistrados,map<string,string> & PeticionesPendientes){
+    //Funcion en la que el administrador va a aceptar las peticiones de registro.
+    ObservarPeticiones(PeticionesPendientes);
     string documento,clave;
     getline(cin,documento);
     do{
         cout<<"Ingrese el nombre con el cual el usuario desea quedar registrado: "<<endl;
         getline(cin,documento);
+        //Verifica si el nombre ingresado está dentro de las peticiones.
         if(PeticionesPendientes.find(documento)==PeticionesPendientes.end())
             cout<<"Lo setimos pero este no es un nombre que este dentro de las peticiones. "<<endl;
     }while(PeticionesPendientes.find(documento)==PeticionesPendientes.end());
@@ -502,20 +536,23 @@ void AgregarUsuarios( map<string,Usuario> &UsuariosRegistrados,map<string,string
         cout<<"La clave del usuario debe ser de exactamente 8 caracteres; ademas, debe contener numeros y letras. "<<endl;
         cout<<"Ingrese la clave del usuario: "<<endl;
         cin>>clave;
-        if(i->first!=clave)
+        if(i->second!=clave)
             cout<<"Este clave no corresponde con la peticion. "<<endl;
-    }while(i->first!=clave);
+    }while(i->second!=clave); //Verifica si la clave coincide con la la peticion.
 
-    IncorporarUsuarioAlSistema(UsuariosRegistrados,documento,clave,"0");
+    IncorporarUsuarioAlSistema(UsuariosRegistrados,documento,clave,"0"); //Agrega al nuevo usuario a la variable usuarios registrados.
+    PeticionesPendientes.erase(documento); //Elimina la peticion.
     cout<<"El usuario se ha agregado exitosamente. "<<endl;
 }
 
 void RealizarPeticion( map<string,Usuario> &UsuariosRegistrados){
+    //Permite a un usuario anonimo realizar una peticion.
     string documento,clave;
     getline(cin,documento);
     do{
         cout<<"Ingrese el nombre con el cual el desea quedar registrado: "<<endl;
         getline(cin,documento);
+        //Verifica si el nombre ingresado está entre las peticiones realizadas.
         if(verificando_cedula(documento,UsuariosRegistrados)==false or HayOtraPeticionConElMismoNombre(documento)==false)
             cout<<"Lo sentimos pero este nombre ya se encuentra en uso. "<<endl;
     }while(verificando_cedula(documento,UsuariosRegistrados)==false or HayOtraPeticionConElMismoNombre(documento)==false);
@@ -526,11 +563,12 @@ void RealizarPeticion( map<string,Usuario> &UsuariosRegistrados){
         cin>>clave;
     }while(!verificando_clave(clave));
 
-    NotificarPeticionDeRegistro(documento,clave);
+    NotificarPeticionDeRegistro(documento,clave); //Escribe en el archivo de peticiones la peticion relalizada.
     cout<<"Peticion enviada exitosamente. "<<endl;
 }
 
 bool HayOtraPeticionConElMismoNombre(string CandidatoNombre){
+    //Esta funcion se encarga de verificar que dos peticiones NO tengan el mismo nombre.
     int indicador=contar_lineas("SolicitudesDeRegistro.txt");
     if(indicador==0)
         return true;
@@ -552,6 +590,7 @@ bool HayOtraPeticionConElMismoNombre(string CandidatoNombre){
     }
 }
 void NotificarPeticionDeRegistro(string nombre, string contrasena){
+    //Actualiza el archivo de que contiene las peticiones de registro.
     ofstream archivo("SolicitudesDeRegistro.txt",ios::app);
     if(archivo.fail()){
         cout<<"Error al abrir el archivo. NotificarPeticionDeRegistro. "<<endl;
@@ -565,7 +604,9 @@ void GastarRecursosInventario(map<string,ProductoInvetario>& AlmacenarInventario
     i->second.NumeroDePaquetes= (((i->second.UnidadesPorPaquete)*(i->second.NumeroDePaquetes))-UnidadesUsadas)*(i->second.NumeroDePaquetes)/((i->second.UnidadesPorPaquete)*(i->second.NumeroDePaquetes));
 }
 void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string NombreCombo,map<string,ComboCinema> &TodosLosCombos){
-   vector<string> ParaFormarUnCombo{"Hamburguesa","Perro Caliente","Nachos","Doritos","Detodito","Caja de palomitas 170 Oz","Caja de palomitas 130 Oz","Caja de palomitas 85 Oz","Vaso Plastico 44 Oz","Vaso Plastico 32 Oz","Vaso Plastico 22 Oz"};
+   //Esta funcion permite la creacion de un nuevo combo.
+    //Los siguientes son las diferentes comidas que pueden hay disponibles en el cine.
+    vector<string> ParaFormarUnCombo{"Hamburguesa","Perro Caliente","Nachos","Doritos","Detodito","Caja de palomitas 170 Oz","Caja de palomitas 130 Oz","Caja de palomitas 85 Oz","Vaso Plastico 44 Oz","Vaso Plastico 32 Oz","Vaso Plastico 22 Oz"};
    map<string,ProductoInvetario> LeerProductosAgregarInventario;
    LeerArticulosParaAgregarInventario(LeerProductosAgregarInventario);
    string contenido="";
@@ -573,11 +614,11 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
    int CostoCombo=0;
    int elemento;
    char opcion;
-   bool bandera;
-    for(int i=0;i<ParaFormarUnCombo.size();i++){
-        cout<<i+1<<") "<<ParaFormarUnCombo[i]<<endl;
-    }
+   bool bandera,perfeccionista=true;
     do{
+       for(int i=0;i<ParaFormarUnCombo.size();i++){
+           cout<<i+1<<") "<<ParaFormarUnCombo[i]<<endl;
+       }
 
         cout<<"Ingrese la posicion de la preparacion que va a incluir el combo: "<<endl;
         cin>>elemento;
@@ -588,7 +629,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
             for (int i =1;i<=4;i++) {
                 bandera=SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,NumeroCadenaCaracterer(i),1*CantidadComida);
                 if(bandera==false){
-                    cout<<"No hay suministros suficientes..."<<endl;
+                    perfeccionista=false;
                     break;
                 }
             }
@@ -597,7 +638,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                     GastarRecursosInventario(AlmacenarInventario,NumeroCadenaCaracterer(i),1*CantidadComida);
                     CostoCombo+=(LeerProductosAgregarInventario[NumeroCadenaCaracterer(i)].precio/(LeerProductosAgregarInventario[NumeroCadenaCaracterer(i)].NumeroDePaquetes*LeerProductosAgregarInventario[NumeroCadenaCaracterer(i)].UnidadesPorPaquete))*CantidadComida;
                 }
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista==true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Hamburguesa";
@@ -605,8 +646,10 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Hamburguesas";
                 }
+                perfeccionista=true;
             }else {
               cout<<"No hay suministros suficientes. Por favor, recargar el inventario. "<<endl;
+              perfeccionista=false;
             }
         break;
         }
@@ -616,6 +659,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                     bandera=SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,NumeroCadenaCaracterer(i),1*CantidadComida);
                     if(bandera==false){
                         cout<<"No hay suministros suficientes..."<<endl;
+                        perfeccionista=false;
                         break;
                     }
                 }
@@ -623,6 +667,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                     bandera=SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,NumeroCadenaCaracterer(i),14*CantidadComida);
                     if(bandera==false){
                         cout<<"No hay suministros suficientes..."<<endl;
+                        perfeccionista=false;
                         break;
                     }
                }
@@ -642,7 +687,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                     }
                     GastarRecursosInventario(AlmacenarInventario,"3",1*CantidadComida);
                     CostoCombo+=(LeerProductosAgregarInventario["3"].precio/(LeerProductosAgregarInventario["3"].NumeroDePaquetes*LeerProductosAgregarInventario["3"].UnidadesPorPaquete))*CantidadComida;
-                    if(opcion == '1')
+                    if(opcion == '1' and perfeccionista==true)
                         contenido+=",";
                     if(CantidadComida==1){
                         contenido+= NumeroCadenaCaracterer(CantidadComida)+" Perro caliente";
@@ -650,13 +695,16 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                     else {
                         contenido+= NumeroCadenaCaracterer(CantidadComida)+" Perros calientes";
                     }
+                    perfeccionista=true;
                 }
                 else {
                     cout<<"No hay suministros suficientes..."<<endl;
+                    perfeccionista=false;
                 }
             }
             else {
                 cout<<"No hay suministros suficientes..."<<endl;
+                perfeccionista=false;
             }
             break;
         }
@@ -665,7 +713,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
             if(bandera==true){
                 GastarRecursosInventario(AlmacenarInventario,"9",1*CantidadComida);
                 CostoCombo+=(LeerProductosAgregarInventario["9"].precio/(LeerProductosAgregarInventario["9"].NumeroDePaquetes*LeerProductosAgregarInventario["9"].UnidadesPorPaquete))*CantidadComida;
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista==true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Paquete de nachos";
@@ -673,10 +721,12 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Paquetes de nachos";
                 }
+                perfeccionista=true;
             }
             else {
                 cout<<"No hay suministros..."<<endl;
                 cout<<"Deficit de paquetes de nachos..."<<endl;
+                perfeccionista=false;
             }
             break;
         }
@@ -685,7 +735,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
             if(bandera==true){
                 GastarRecursosInventario(AlmacenarInventario,"10",1*CantidadComida);
                 CostoCombo+=(LeerProductosAgregarInventario["10"].precio/(LeerProductosAgregarInventario["10"].NumeroDePaquetes*LeerProductosAgregarInventario["10"].UnidadesPorPaquete))*CantidadComida;
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista == true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Paquete de doritos";
@@ -693,10 +743,12 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Paquetes de doritos";
                 }
+                perfeccionista=true;
             }
             else {
                 cout<<"No hay suministros suficientes..."<<endl;
                 cout<<"Deficit de paquetes de doritos.."<<endl;
+                perfeccionista=false;
             }
             break;
         }
@@ -705,7 +757,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
             if(bandera==true){
                 GastarRecursosInventario(AlmacenarInventario,"11",1*CantidadComida);
                 CostoCombo+=(LeerProductosAgregarInventario["11"].precio/(LeerProductosAgregarInventario["11"].NumeroDePaquetes*LeerProductosAgregarInventario["11"].UnidadesPorPaquete))*CantidadComida;
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista==true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Paquete de detodito";
@@ -713,10 +765,12 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Paquetes de detodito";
                 }
+                perfeccionista=true;
             }
             else {
                 cout<<"No hay suministros suficientes..."<<endl;
                 cout<<"Deficit de paquetes de detoditos..."<<endl;
+                perfeccionista=false;
             }
             break;
         }
@@ -726,7 +780,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 CostoCombo+=(LeerProductosAgregarInventario["16"].precio/(LeerProductosAgregarInventario["16"].NumeroDePaquetes*LeerProductosAgregarInventario["16"].UnidadesPorPaquete))*CantidadComida;
                 GastarRecursosInventario(AlmacenarInventario,"12",170*CantidadComida);
                 CostoCombo+=(LeerProductosAgregarInventario["12"].precio/(LeerProductosAgregarInventario["12"].NumeroDePaquetes*LeerProductosAgregarInventario["12"].UnidadesPorPaquete))*CantidadComida*170;
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista==true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Caja grande de palomitas";
@@ -734,10 +788,12 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Cajas grandes de palomitas";
                 }
+                perfeccionista=true;
             }
             else {
                 cout<<"No hay suficientes suministros..."<<endl;
                 cout<<"Se recomienda revisar el abastecimiento de crispetas y cajas grandes para crispetas. "<<endl;
+                perfeccionista=false;
             }
             break;
         }
@@ -747,7 +803,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 CostoCombo+=(LeerProductosAgregarInventario["17"].precio/(LeerProductosAgregarInventario["17"].NumeroDePaquetes*LeerProductosAgregarInventario["17"].UnidadesPorPaquete))*CantidadComida;
                 GastarRecursosInventario(AlmacenarInventario,"12",150*CantidadComida);
                 CostoCombo+=(LeerProductosAgregarInventario["12"].precio/(LeerProductosAgregarInventario["12"].NumeroDePaquetes*LeerProductosAgregarInventario["12"].UnidadesPorPaquete))*CantidadComida*150;
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista==true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Caja mediana de palomitas";
@@ -755,10 +811,12 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Cajas medianas de palomitas";
                 }
+                perfeccionista=true;
             }
             else {
                 cout<<"No hay recursos suficientes..."<<endl;
                  cout<<"Se recomienda revisar el abastecimiento de crispetas y cajas medianas para crispetas. "<<endl;
+                 perfeccionista=false;
             }
             break;
         }
@@ -768,7 +826,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 CostoCombo+=(LeerProductosAgregarInventario["18"].precio/(LeerProductosAgregarInventario["18"].NumeroDePaquetes*LeerProductosAgregarInventario["18"].UnidadesPorPaquete))*CantidadComida;
                 GastarRecursosInventario(AlmacenarInventario,"12",130*CantidadComida);
                 CostoCombo+=(LeerProductosAgregarInventario["12"].precio/(LeerProductosAgregarInventario["12"].NumeroDePaquetes*LeerProductosAgregarInventario["12"].UnidadesPorPaquete))*CantidadComida*130;
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista==true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Caja pequena de palomitas";
@@ -776,10 +834,12 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Cajas pequenas de palomitas";
                 }
+                perfeccionista=true;
             }
             else {
                 cout<<"No hay suministros suficientes..."<<endl;
                 cout<<"Se recomienda revisar el abastecimiento de crispetas y cajas pequenas para crispetas. "<<endl;
+                perfeccionista=false;
             }
             break;
         }
@@ -787,15 +847,17 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
             if(SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"13",1*CantidadComida)==false){
                 cout<<"No hay recursos suficientes..."<<endl;
                 cout<<"Se recomienda revisar los vasos plasticos de 44 Oz..."<<endl;
+                perfeccionista=false;
             }
             else if((SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"19",44*CantidadComida)==false and SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"20",44*CantidadComida) and SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"21",44*CantidadComida) and SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"22",44*CantidadComida) and SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"23",44*CantidadComida))){
                 cout<<"No hay recursos suficientes..."<<endl;
                 cout<<"Se recomienda revisar las gaseosas..."<<endl;
+                perfeccionista=false;
             }
             else {
                 GastarRecursosInventario(AlmacenarInventario,"13",1*CantidadComida);
                 CostoCombo+=(LeerProductosAgregarInventario["13"].precio/(LeerProductosAgregarInventario["13"].NumeroDePaquetes*LeerProductosAgregarInventario["13"].UnidadesPorPaquete))*CantidadComida;
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista==true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Vaso de gaseosa grande";
@@ -803,6 +865,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Vasos de gaseosa grande";
                 }
+                perfeccionista=true;
             }
             break;
         }
@@ -810,15 +873,17 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
             if(SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"14",1*CantidadComida)==false){
                 cout<<"No hay recursos suficientes..."<<endl;
                 cout<<"Se recomienda revisar los Vasos plasticos 32 Oz"<<endl;
+                perfeccionista=false;
             }
             else if(SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"19",32*CantidadComida)==false and SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"20",32*CantidadComida) and SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"21",32*CantidadComida) and SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"22",32*CantidadComida) and SiExisteLaComidaSuficienteEnElInventario(AlmacenarInventario,"23",32*CantidadComida)) {
                 cout<<"No hay recursos suficientes..."<<endl;
                 cout<<"Se recomienda revisar las gaseosas "<<endl;
+                perfeccionista=false;
             }
             else {
                 GastarRecursosInventario(AlmacenarInventario,"14",1*CantidadComida);
                 CostoCombo+=(LeerProductosAgregarInventario["14"].precio/(LeerProductosAgregarInventario["14"].NumeroDePaquetes*LeerProductosAgregarInventario["14"].UnidadesPorPaquete))*CantidadComida;
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista==true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Vaso de gaseosa mediana";
@@ -826,6 +891,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Vasos de gaseosa mediana";
                 }
+                perfeccionista=true;
             }
             break;
         }
@@ -841,7 +907,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
             else {
                 GastarRecursosInventario(AlmacenarInventario,"15",1*CantidadComida);
                 CostoCombo+=(LeerProductosAgregarInventario["15"].precio/(LeerProductosAgregarInventario["15"].NumeroDePaquetes*LeerProductosAgregarInventario["15"].UnidadesPorPaquete))*CantidadComida;
-                if(opcion == '1')
+                if(opcion == '1' and perfeccionista==true)
                     contenido+=",";
                 if(CantidadComida==1){
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Vaso de gaseosa pequena";
@@ -849,6 +915,7 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
                 else {
                     contenido+= NumeroCadenaCaracterer(CantidadComida)+" Vasos de gaseosa pequena";
                 }
+                perfeccionista=true;
             }
             break;
         }
@@ -859,6 +926,8 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
         cout<<"Desea agregar otro elemento al combo "<<NombreCombo<<"? "<<endl;
         cout<<"Si -> 1.\nNo -> Calquier otra tecla. "<<endl;
         cin>>opcion;
+        if(contenido.size()>1 and contenido[contenido.size()-1]!=',')
+            perfeccionista=true;
     }while(opcion == '1');
 
     for(int i=contenido.size();i>=0;--i){
@@ -867,8 +936,6 @@ void CrearNuevoCombo(map<string,ProductoInvetario>& AlmacenarInventario,string N
             break;
         }
     }
-    if(contenido[0]==',')
-        contenido.erase(0,1);
     char SegOpcion;
     ComboCinema auxiliar;
     auxiliar.InicializarCombo(NombreCombo,contenido,CostoCombo,1);
@@ -894,7 +961,8 @@ bool SiExisteLaComidaSuficienteEnElInventario(map<string,ProductoInvetario>& Alm
 }
 
 bool QueSeNecesitaParaCadaPreparacion(map<string,ProductoInvetario>& AlmacenarInventario,map<string,int> PreparacionCanidad,int Repetir){
-    map<string,map<vector<int>,vector<string>>> ParaFormarUnCombo {{"Hamburguesa",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir},{"1","2","3","4"}}}},{"Perro Caliente",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*14,PreparacionCanidad.begin()->second*Repetir},{"5","6","7","8","3"}}}},{"Nachos",{{{PreparacionCanidad.begin()->second*Repetir},{"9"}}}},{"Doritos",{{{PreparacionCanidad.begin()->second*Repetir},{"10"}}}},{"Detodito",{{{PreparacionCanidad.begin()->second*Repetir},{"11"}}}},{"Caja para palomitas 170 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*170},{"16","12"}}}},{"Caja para palomitas 130 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*150},{"17","12"}}}},{"Caja para palomitas 85 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*130},{"16","12"}}}},{"Vasos Plasticos 44 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*44,PreparacionCanidad.begin()->second*Repetir*44,PreparacionCanidad.begin()->second*Repetir*44,PreparacionCanidad.begin()->second*Repetir*44,PreparacionCanidad.begin()->second*Repetir*44},{"13","19","20","21","22","23"}}}},{"Vasos Plasticos 32 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*32,PreparacionCanidad.begin()->second*Repetir*32,PreparacionCanidad.begin()->second*Repetir*32,PreparacionCanidad.begin()->second*Repetir*32,PreparacionCanidad.begin()->second*Repetir*32},{"14","19","20","21","22","23"}}}},{"Vasos Plasticos 22 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*22,PreparacionCanidad.begin()->second*Repetir*22,PreparacionCanidad.begin()->second*Repetir*22,PreparacionCanidad.begin()->second*Repetir*22,PreparacionCanidad.begin()->second*Repetir*22},{"15","19","20","21","22","23"}}}}};
+    //Esta funcion analiza si sí tengo los materiales suficientes para hacer una preparacion.
+    map<string,map<vector<int>,vector<string>>> ParaFormarUnCombo {{"Hamburguesa",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir},{"1","2","3","4"}}}},{"Perro caliente",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*14,PreparacionCanidad.begin()->second*Repetir},{"5","6","7","8","3"}}}},{"Nachos",{{{PreparacionCanidad.begin()->second*Repetir},{"9"}}}},{"Doritos",{{{PreparacionCanidad.begin()->second*Repetir},{"10"}}}},{"Detodito",{{{PreparacionCanidad.begin()->second*Repetir},{"11"}}}},{"Caja para palomitas 170 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*170},{"16","12"}}}},{"Caja para palomitas 130 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*150},{"17","12"}}}},{"Caja para palomitas 85 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*130},{"16","12"}}}},{"Vasos Plasticos 44 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*44,PreparacionCanidad.begin()->second*Repetir*44,PreparacionCanidad.begin()->second*Repetir*44,PreparacionCanidad.begin()->second*Repetir*44,PreparacionCanidad.begin()->second*Repetir*44},{"13","19","20","21","22","23"}}}},{"Vasos Plasticos 32 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*32,PreparacionCanidad.begin()->second*Repetir*32,PreparacionCanidad.begin()->second*Repetir*32,PreparacionCanidad.begin()->second*Repetir*32,PreparacionCanidad.begin()->second*Repetir*32},{"14","19","20","21","22","23"}}}},{"Vasos Plasticos 22 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*22,PreparacionCanidad.begin()->second*Repetir*22,PreparacionCanidad.begin()->second*Repetir*22,PreparacionCanidad.begin()->second*Repetir*22,PreparacionCanidad.begin()->second*Repetir*22},{"15","19","20","21","22","23"}}}}};
     bool indicador=true;
     auto i= ParaFormarUnCombo.find(PreparacionCanidad.begin()->first);
     for (int verificador=0;verificador<i->second.begin()->first.size();verificador++) {
@@ -917,13 +985,30 @@ bool QueSeNecesitaParaCadaPreparacion(map<string,ProductoInvetario>& AlmacenarIn
 }
 
 void EjecutarGastoAutomatico(map<string,ProductoInvetario>& AlmacenarInventario,map<string,int> PreparacionCanidad,int Repetir){
-    map<string,map<vector<int>,vector<string>>> ParaFormarUnCombo {{"Hamburguesa",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir},{"1","2","3","4"}}}},{"Perro Caliente",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*14,PreparacionCanidad.begin()->second*Repetir},{"5","6","7","8","3"}}}},{"Nachos",{{{PreparacionCanidad.begin()->second*Repetir},{"9"}}}},{"Doritos",{{{PreparacionCanidad.begin()->second*Repetir},{"10"}}}},{"Detodito",{{{PreparacionCanidad.begin()->second*Repetir},{"11"}}}},{"Caja para palomitas 170 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*170},{"16","12"}}}},{"Caja para palomitas 130 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*150},{"17","12"}}}},{"Caja para palomitas 85 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*130},{"16","12"}}}},{"Vasos Plasticos 44 Oz",{{{PreparacionCanidad.begin()->second*Repetir},{"13"}}}},{"Vasos Plasticos 32 Oz",{{{PreparacionCanidad.begin()->second*Repetir},{"14"}}}},{"Vasos Plasticos 22 Oz",{{{PreparacionCanidad.begin()->second*Repetir},{"15"}}}}};
+    /*Esta funcion recibe el inventario (AlmacenarInventario), recibe el plato y el numero de estos que voy a incluir en el combo
+     *  PreparacionCanidad y recibe la cantidad de combos que van a haber (repetir).
+     * Si un combo tiene 1 hamburguesa ... y yo voy a crear 3 combos mas de ese mismo... voy a tener 3 hamburguesas en total.
+     * repetir*1.
+     * La variable ParaFormarUnCombo es un mapa que tiene como clave un string que es el plato (preparacion o comida) que va
+     * a llevar el combo y tiene como valor otro mapa que a su vez tiene dos vectores uno como valor y otro como clave.
+     * El vector valor de este ultimo mapa contiene todos los ingredientes que se necesitan para preparar el plato, mientras que
+     * que el vector clave contiene las cantidades de estos ingredientes que se necesitan para preparar la comida.
+     *
+     */
+    map<string,map<vector<int>,vector<string>>> ParaFormarUnCombo {{"Hamburguesa",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir},{"1","2","3","4"}}}},{"Perro caliente",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*14,PreparacionCanidad.begin()->second*Repetir},{"5","6","7","8","3"}}}},{"Nachos",{{{PreparacionCanidad.begin()->second*Repetir},{"9"}}}},{"Doritos",{{{PreparacionCanidad.begin()->second*Repetir},{"10"}}}},{"Detodito",{{{PreparacionCanidad.begin()->second*Repetir},{"11"}}}},{"Caja para palomitas 170 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*170},{"16","12"}}}},{"Caja para palomitas 130 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*150},{"17","12"}}}},{"Caja para palomitas 85 Oz",{{{PreparacionCanidad.begin()->second*Repetir,PreparacionCanidad.begin()->second*Repetir*130},{"16","12"}}}},{"Vasos Plasticos 44 Oz",{{{PreparacionCanidad.begin()->second*Repetir},{"13"}}}},{"Vasos Plasticos 32 Oz",{{{PreparacionCanidad.begin()->second*Repetir},{"14"}}}},{"Vasos Plasticos 22 Oz",{{{PreparacionCanidad.begin()->second*Repetir},{"15"}}}}};
     auto i= ParaFormarUnCombo.find(PreparacionCanidad.begin()->first);
     for (int iterador=0;iterador<i->second.begin()->first.size();++iterador) {
         GastarRecursosInventario(AlmacenarInventario,i->second.begin()->second[iterador],i->second.begin()->first[iterador]);
     }
 }
 map<string,int> DesglozarElementosDelContenidoDeUnCombo(string & contenido){
+    /*Esta funcion toma el contenido de un determinado combo y lo desgloza de tal manera que el programa pueda trabajar con esa inforacion.
+     * ejemplo:
+     * La funcion recibe un strin con la informacion "1 hamburguesa, 1 paquete de doritos y 1 vaso de gaseosa grande"
+     * Inicialmente la funcion retornará 1 hamburguesa. Esto mediante un mapa cuya clave es hambuguesa y cuyo valor es 1.
+     * Pero como exterior a esta funcion va a ver un bucle que se va a ejecutar hasta que contenido sea igual a vacio
+     * habrá retornado tambien <Doritos,1> y <Vasos Plasticos 44 Oz,1>
+     */
     map<string,int> AuxiliarProductoCantidad;
     string ayuda;
     int numero;
@@ -966,6 +1051,7 @@ map<string,int> DesglozarElementosDelContenidoDeUnCombo(string & contenido){
 
 }
 void FormarCombos(map<string,ProductoInvetario>& AlmacenarInventario, map<string,ComboCinema>& TodosLosCombos){
+    //Esta funcion permite crear, recargar y eliminar combos.
     char opcion;
     bool bandera;
     map<string,int> ProductoCantidad;
@@ -975,14 +1061,14 @@ void FormarCombos(map<string,ProductoInvetario>& AlmacenarInventario, map<string
         opcion=SubMenuFormarCombo();
         switch (opcion) {
         case '1':{
-            MostrarCombos(TodosLosCombos);
+            MostrarCombos(TodosLosCombos); //Se muestran los combos.
             break;
         }
         case '2':{
             cout<<"Ingrese el nombre del combo que desea recargar: "<<endl;
             getline(cin,NombreComboRecargar);
             getline(cin,NombreComboRecargar);
-            if(TodosLosCombos.find(NombreComboRecargar)==TodosLosCombos.end())
+            if(TodosLosCombos.find(NombreComboRecargar)==TodosLosCombos.end()) //Aqui se recagan los combos existentes.
                 cout<<"Imposible recargar un combo que no existe. "<<endl;
             else {
                 int numero;
@@ -1048,6 +1134,7 @@ void FormarCombos(map<string,ProductoInvetario>& AlmacenarInventario, map<string
 
 
 void LeerInventario( map<string,ProductoInvetario>& AlmacenarInventario){
+    //Esta funcion lee el inventario y lo almacena en la variable Almacenar Inventario.
 string LeerLinea,nombre,UnidadesPorPaquete,NumeroDePaquetes,PrecioTotal,indice;
     fstream archivo("inventario.txt");
     if(archivo.fail())
@@ -1079,7 +1166,7 @@ float StringAFloat(string numero){
     float retornar=0;
     for (int i=numero.size()-1;i>=0;--i) {
         if(numero[i]=='.'){
-            while (retornar>1) {
+            while (retornar>=1) {
                 retornar/=10;
             }
         }
@@ -1190,7 +1277,8 @@ void LeerArticulosParaAgregarInventario(map<string,ProductoInvetario>& LeerProdu
     archivo.close();
 }
 
-void AgregarAInventario(map<string,ProductoInvetario>& AlmacenarInventario,int &inversion){
+void AgregarAInventario(map<string,ProductoInvetario>& AlmacenarInventario){
+    //Esta funcion me permite agregar productos al inventario.
     map<string,ProductoInvetario> LeerProductosAgregarInventario;
     LeerArticulosParaAgregarInventario(LeerProductosAgregarInventario);
     cout<<"Los productos que la administracion puede comprar son los siguientes: "<<endl;
@@ -1205,10 +1293,10 @@ void AgregarAInventario(map<string,ProductoInvetario>& AlmacenarInventario,int &
         cout<<i.second.UnidadesPorPaquete<<"    "<<i.second.precio<<endl;
     }
     auto t = std::time(nullptr);
-    auto tm = *std::localtime(&t);
+    auto tm = *std::localtime(&t); // Obtiene el la fecha y hora actual.
     ostringstream oss;
     oss << put_time(&tm, "%d-%m-%Y %H-%M-%S");
-    auto str = oss.str();
+    auto str = oss.str();  // Guarda en la variable str la fecha y hora en la que se hizo la compra.
     str= "Fecha: "+ str.substr(0,str.find(" "))+" Hora: "+ str.substr(str.find(" ")+1,str.size()-str.find(" "));
     EscribirRegistroDeComprasParaInventario(str);
     char opcion;
@@ -1224,9 +1312,10 @@ void AgregarAInventario(map<string,ProductoInvetario>& AlmacenarInventario,int &
             cin>>indice;
             cout<<"Ingrese cuantos de estos paquetes desea comprar: "<<endl;
             cin>>cantidad;
-            AlmacenarInventario[indice].NumeroDePaquetes+=LeerProductosAgregarInventario[indice].NumeroDePaquetes*cantidad;
-            inversion+=LeerProductosAgregarInventario[indice].precio*cantidad;
+            AlmacenarInventario[indice].NumeroDePaquetes+=LeerProductosAgregarInventario[indice].NumeroDePaquetes*cantidad; //Aumenta la cantidad de producto en el inventario.
+            // Esta linea almacena que y cuanto producto se compro.
             reporte=LeerProductosAgregarInventario[indice].nombre+" "+NumeroCadenaCaracterer(LeerProductosAgregarInventario[indice].UnidadesPorPaquete)+" "+NumeroCadenaCaracterer(LeerProductosAgregarInventario[indice].NumeroDePaquetes*cantidad)+" "+NumeroCadenaCaracterer(LeerProductosAgregarInventario[indice].precio*cantidad);
+            //Esta funcion escribe en un archo el reporte.
             EscribirRegistroDeComprasParaInventario(reporte);
         }
     }while(opcion == '1');
@@ -1235,6 +1324,7 @@ void AgregarAInventario(map<string,ProductoInvetario>& AlmacenarInventario,int &
 }
 
 void EscribirArchivoInventario(map<string,ProductoInvetario>& AlmacenarInventario){
+    //Con esta funcion se guardan los cambios hechos en el inventario.
     ofstream archivo("inventario.txt");
     if(archivo.fail())
         cout<<"Error al abrir el archivo. Escribir archivo inventario. "<<endl;
@@ -1250,6 +1340,7 @@ void EscribirArchivoInventario(map<string,ProductoInvetario>& AlmacenarInventari
 }
 
 void EscribirEnArchiParaCombos(map<string,ComboCinema>& TodosLosCombos){
+    //Con esta funcion guardo los combos creados o modificados.
     ofstream archivo("combos.txt");
     if(archivo.fail())
         cout<<"No se pudo abrir el archivo. EscribirEnArchiParaCombos"<<endl;
@@ -1262,6 +1353,7 @@ void EscribirEnArchiParaCombos(map<string,ComboCinema>& TodosLosCombos){
 
 }
 void EscribirRegistroDeComprasParaInventario(string reporte){
+    //Con esta funcion guardo las comprar que el administrador haya hecho.
     ofstream archivo("RegistroDeComprasInventario.txt",ios::app);
     if(archivo.fail()){
         cout<<"Error al abrir el archivo.EscribirRegistroDeComprasParaInventario "<<endl;

@@ -7,3 +7,45 @@ Queso Mozarella Tajado 20 1 6000
 Tomates 10 1 5000
 Carne para hamburguesa 4 5 57600
          
+Fecha: 14-05-2020 Hora: 16-18-29
+         
+Fecha: 14-05-2020 Hora: 16-18-47
+Ripio de papas 182 3 13200
+Pan para perro 6 4 16000
+Chorizo 8 2 28000
+Huevos de codorniz 60 1 12000
+Gaseosa Postobon Uva 102 3 15600
+         
+Fecha: 14-05-2020 Hora: 20-06-59
+Queso Mozarella Tajado 20 1 6000
+Pan para hamburguesa 6 3 19800
+         
+Fecha: 14-05-2020 Hora: 21-44-29
+Pan para hamburguesa 6 5 33000
+Carne para hamburguesa 4 5 57600
+Queso Mozarella Tajado 20 5 30000
+Tomates 10 5 25000
+Pan para perro 6 5 20000
+Chorizo 8 1 14000
+Ripio de papas 182 6 26400
+Huevos de codorniz 60 5 60000
+Nachos 1 6 13800
+Palomitas 500 5 7500
+Doritos 1 4 13200
+Detodito 1 3 12000
+Vasos plasticos 44 Oz 10 4 60000
+Vasos plasticos 32 Oz 10 6 72000
+Vasos plasticos 22 Oz 10 4 40000
+Caja para palomitas 170 Oz 30 4 48000
+Caja para palomitas 130 Oz 30 6 54000
+Caja para palomitas 85 Oz 30 5 40000
+Gaseosa Pepsi 102 3 16500
+Cocacola 102 4 24000
+Gaseosa Postobon Manzana 102 3 15600
+Dry Ginger 102 4 20800
+Paca de botellas de agua 6 4 40000
+         
+Fecha: 14-05-2020 Hora: 23-48-22
+Tomates 10 1 5000
+Pan para hamburguesa 6 4 26400
+         

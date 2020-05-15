@@ -36,7 +36,7 @@ bool QueSeNecesitaParaCadaPreparacion(map<string,ProductoInvetario>&,map<string,
 void EjecutarGastoAutomatico(map<string,ProductoInvetario>&,map<string,int>,int);
 map<string,int> DesglozarElementosDelContenidoDeUnCombo(string &);
 void FormarCombos(map<string,ProductoInvetario>&, map<string,ComboCinema>& );
-void AgregarAInventario(map<string,ProductoInvetario>&,int &);
+void AgregarAInventario(map<string,ProductoInvetario>&);
 void EscribirArchivoInventario(map<string,ProductoInvetario>&);
 void EscribirEnArchiParaCombos(map<string,ComboCinema>&);
 bool HayOtraPeticionConElMismoNombre(string);
@@ -44,12 +44,12 @@ void NotificarPeticionDeRegistro(string nombre, string);
 void ExtraerSolicitudesDeRegistro(map<string,string> &);
 void ObservarPeticiones(map<string,string> &);
 void RealizarPeticion( map<string,Usuario> &);
-void SeleccionarSaborGaseosa(map<string,ProductoInvetario>, int, string);
+void SeleccionarSaborGaseosa(map<string,ProductoInvetario>&, int &, string);
 void precios_individuales( int &,int);
 void EscribirLineaRegistroVentas(string);
 void cambio_diniero(int *);
 void PagarCuenta(int);
 void ImprimirRegistroVentas();
 void ObservarProductos(map<string,ComboCinema> &);
-void RealizarCompra(map<string,Usuario>,map<string,ComboCinema> &,map<string,ProductoInvetario> &,string);
+void RealizarCompra(map<string,Usuario>&,map<string,ComboCinema> &,map<string,ProductoInvetario> &,string);
 #endif // FUNCIONES_H

@@ -7,7 +7,7 @@ using namespace std;
 
 int main()
 {
-    int inversion=0;
+    //  No es recomensable cerrar el programa a mitad de la ejecucion.
     map<string,ComboCinema> TodosLosCombos;
     map<string,ProductoInvetario> AlmacenarInventario;
     map<string,Usuario> UsuariosRegistrados;
@@ -23,17 +23,17 @@ int main()
         switch (OpcionesGneral) {
         case 'A':{
             if(Administrador()){
+                map<string,string> PeticionesPendientes;
+                ExtraerSolicitudesDeRegistro(PeticionesPendientes);
                 do{
                     OpcionAdmin=MenuAdministrador();
-                    map<string,string> PeticionesPendientes;
-                    ExtraerSolicitudesDeRegistro(PeticionesPendientes);
                     switch (OpcionAdmin) {
                     case 'A':{
                         ObservarInventario(AlmacenarInventario);
                         break;
                     }
                     case 'B':{
-                        AgregarAInventario(AlmacenarInventario,inversion);
+                        AgregarAInventario(AlmacenarInventario);
                         break;
                     }
                     case 'C':{
@@ -41,8 +41,9 @@ int main()
                         break;
                     }
                     case 'D':{
-                        if(!PeticionesPendientes.empty())
+                        if(!PeticionesPendientes.empty()){
                             AgregarUsuarios(UsuariosRegistrados,PeticionesPendientes);
+                        }
                         else
                             cout<<"Imposible agregar algun usuario si no hay peticiones. "<<endl;
                         break;
@@ -64,9 +65,6 @@ int main()
                         break;
                     }
                     case 'H':{
-                        break;
-                    }
-                    case 'I':{
                         for(auto i:PeticionesPendientes){
                             NotificarPeticionDeRegistro(i.first,i.second);
                         }
@@ -76,7 +74,7 @@ int main()
                         break;
                     }
                     }
-                }while(OpcionAdmin != 'I');
+                }while(OpcionAdmin != 'H');
             }
             break;
         }
@@ -88,30 +86,36 @@ int main()
                 getline(cin,NombreUsuario);
                 cout<<"Ingrese su contrasena: "<<endl;
                 getline(cin,contrasena);
-                getline(cin,contrasena);
-                if(UsuariosRegistrados[NombreUsuario].clave==contrasena){
-                    do{
-                    OpcionUser=MenuUsuario();
-                    switch (OpcionUser) {
-                    case 'A':{
-                        ObservarProductos(TodosLosCombos);
-                        break;
-                    }
-                    case 'B':{
-                        RealizarCompra(UsuariosRegistrados,TodosLosCombos,AlmacenarInventario,NombreUsuario);
-                        break;
-                    }
+                if(UsuariosRegistrados.find(NombreUsuario)!=UsuariosRegistrados.end()){
+                    if(UsuariosRegistrados[NombreUsuario].clave==contrasena){
+                        do{
+                        cout<<endl;
+                        cout<<"Usario: "<<NombreUsuario<<endl;
+                        OpcionUser=MenuUsuario();
+                        switch (OpcionUser) {
+                        case 'A':{
+                            ObservarProductos(TodosLosCombos);
+                            break;
+                        }
+                        case 'B':{
+                            RealizarCompra(UsuariosRegistrados,TodosLosCombos,AlmacenarInventario,NombreUsuario);
+                            break;
+                        }
 
-                    case 'C':{
-                        cout<<"Gracias por comprar en nuestro cinema. "<<endl;
-                        cout<<"Distruta tu pelicula. "<<endl;
-                        break;
+                        case 'C':{
+                            cout<<"Gracias por comprar en nuestro cinema. "<<endl;
+                            cout<<"Distruta tu pelicula. "<<endl;
+                            break;
+                        }
+                        default:
+                            cout<<"Opcion No especificada. "<<endl;
+                            break;
+                        }
+                        }while(OpcionUser!='C');
                     }
-                    default:
-                        cout<<"Opcion No especificada. "<<endl;
-                        break;
+                    else {
+                        cout<<"Usuario o contrasena incorrectos. "<<endl;
                     }
-                    }while(OpcionUser!='C');
                 }
                 else {
                     cout<<"Usuario o contrasena incorrectos. "<<endl;
@@ -149,6 +153,7 @@ int main()
             break;
         }
         case 'E':{
+            EscribirEnArchiParaCombos(TodosLosCombos);
             EscribirUsuariosEnElArchivo(UsuariosRegistrados);
             cout<<"Todos los combios han sido guardados exitosamente. "<<endl;
             break;
@@ -159,6 +164,6 @@ int main()
         }
 
         }
-    }while(OpcionesGneral != 'C');
+    }while(OpcionesGneral != 'E');
     return 0;
 }
